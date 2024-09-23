@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'Caveat';
+  src: url('../assets/fonts/Caveat/Caveat-VariableFont_wght.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('../assets/fonts/Inter/Inter-VariableFont_slnt,wght.ttf') format('truetype');
+}
+
+html {
+  min-width: 400px;
+  min-height: 600px;
+  font-family: 'Inter', 'Roboto', 'Segoe UI', 'Arial', 'Helvetica', sans-serif;
+  font-size: 20px;
+}
+
+body, #root {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+

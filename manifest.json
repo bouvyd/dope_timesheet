@@ -1,0 +1,15 @@
+{
+    "manifest_version": 3,
+    "name": "Dope Timesheets",
+    "version": "0.1",
+    "description": "A Chrome extension for managing timesheets as an Odoo Employee",
+    "action": {
+        "default_popup": "index.html"
+    },
+    "permissions": [
+        "storage"
+    ],
+    "host_permissions": [
+        "https://www.odoo.com/*"
+    ]
+}
