@@ -7,8 +7,12 @@
         "default_popup": "index.html"
     },
     "permissions": [
-        "storage"
+        "storage",
+        "sidePanel"
     ],
+    "side_panel": {
+        "default_path": "index.html"
+    },
     "host_permissions": [
         "https://www.odoo.com/*"
     ]
