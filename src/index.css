@@ -16,7 +16,6 @@ html {
   min-width: 300px;
   min-height: 500px;
   font-family: 'Inter', 'Roboto', 'Segoe UI', 'Arial', 'Helvetica', sans-serif;
-  font-size: 20px;
   color: #374151;
 }
 
@@ -39,7 +38,7 @@ body, #root {
     position: absolute;
     z-index: -1;
     filter: url(#marker-shape);
-    left: -0.25em;
+    left: 0;
     top: 0.6em;
     padding: 0 0.25em;
   }

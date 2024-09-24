@@ -4,25 +4,25 @@ const NavigationBar = () => {
     const { currentView, setCurrentView } = useMainStore()
 
     return (
-        <nav className="border-b border-purple p-4 w-full h-8 flex items-center justify-center shadow-sm" id="navigation-bar">
+        <nav className="text-lg border-b border-purple p-4 w-full h-8 flex items-center justify-center shadow-sm" id="navigation-bar">
             <div className="flex space-x-4 font-semibold">
                 <button
                     className={`px-2 py-1 ${currentView === 'today' ? 'active text-white' : ''}`}
                     onClick={() => setCurrentView('today')}
                 >
-                    Today
+                    Plan
                 </button>
                 <button
                     className={`px-2 py-1 ${currentView === 'inTheZone' ? 'active text-white' : ''}`}
                     onClick={() => setCurrentView('inTheZone')}
                 >
-                    In the Zone
+                    Werk
                 </button>
                 <button
                     className={`px-2 py-1 ${currentView === 'report' ? 'active text-white' : ''}`}
                     onClick={() => setCurrentView('report')}
                 >
-                    Report
+                    Leave
                 </button>
             </div>
             <svg xmlns="http://www.w3.org/2000/svg" version="1.1" className="svg-filters" style={{display: 'none'}}>

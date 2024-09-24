@@ -1,0 +1,65 @@
+{
+    "task": {
+        "id": {},
+        "display_name": {},
+        "allocated_hours": {},
+        "effective_hours": {},
+        "remaining_hours": {},
+        "project_id": {
+            "fields": {
+                "id": {},
+                "display_name": {}
+            }
+        },
+        "stage_id": {
+            "fields": {
+                "id": {},
+                "display_name": {}
+            }
+        },
+        "x_owner_id": {
+            "fields": {
+                "id": {},
+                "display_name": {}
+            }
+        },
+        "user_ids": {
+            "fields": {
+                "id": {},
+                "display_name": {}
+            }
+        },
+        "reviewer_id": {
+            "fields": {
+                "id": {},
+                "display_name": {}
+            }
+        },
+        "mnt_subscription_id": {
+            "fields": {
+                "id": {},
+                "display_name": {}
+            }
+        },
+        "partner_id": {
+            "fields": {
+                "id": {},
+                "display_name": {}
+            }
+        },
+        "date_last_stage_update": {}
+    },
+    "timesheet": {
+        "id": {},
+        "name": {},
+        "unit_amount": {},
+        "user_id": {
+            "fields": {
+                "id": {},
+                "display_name": {},
+                "login": {}
+            }
+        },
+        "timesheet_invoice_type": {}
+    }
+}

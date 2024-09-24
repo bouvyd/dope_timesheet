@@ -1,4 +1,4 @@
-interface M2OTuple {
+export interface M2OTuple {
     id: number
     displayName: string
 }
@@ -6,18 +6,32 @@ interface M2OTuple {
 export interface Task {
     id: number
     displayName: string
-    projectId: M2OTuple
-    stageId: M2OTuple
+    projectId: M2OTuple | null
+    stageId: M2OTuple | null
     userIds: M2OTuple[]
-    reviewerId: M2OTuple
-    xOwnerId: M2OTuple
+    reviewerId: M2OTuple | null
+    xOwnerId: M2OTuple | null
+    mntSubscriptionId: M2OTuple | null
+    partnerId: M2OTuple | null
+    allocatedHours: number
+    effectiveHours: number
+    remainingHours: number
 }
 
-export interface UserInfo {
+export interface Timesheet {
+    id: number
+    name: string
+    unitAmount : number
+    user: User
+    billable: boolean
+}
+
+
+export interface User {
     id: string
     name: string
     username: string
     avatarUrl: string
 }
 
-export type Domain = (ThisType<string>[] | string)[]
+export type Domain = (ThisType<string>[] | string | number | boolean)[]

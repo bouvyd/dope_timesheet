@@ -1,9 +1,10 @@
-import { Domain, Task, UserInfo } from '../global/types'
+import { Domain, Task, User, Timesheet } from '../global/types'
+import { camelCasify } from '../utils/apiUtils';
+import readSpecs from './readSpecs.json'
 
-const TASK_FIELDS = ["id", "display_name", "project_id", "stage_id", "x_owner_id", "user_ids", "reviewer_id"]
 
 class OdooAPI {
-    private static baseUrl = 'https://www.odoo.com';
+    private static _baseUrl = 'https://www.odoo.com';
     private _uid: string;
 
     constructor(uid: string) {
@@ -30,13 +31,21 @@ class OdooAPI {
         return ['x_owner_id', '=', this.uid];
     }
 
+    static get baseDomain(): Domain {
+        return [['date_last_stage_update', '!=', false], ['display_in_project', '=', true], ['is_closed', '=', false]];
+    }
+
+    static get baseUrl(): string {
+        return this._baseUrl;
+    }
+
     expressionOr(domains: Domain[]): Domain {
         const numDomains = domains.length;
         const ors = Array(numDomains - 1).fill('|');
         return [...ors, ...domains];
     }
     
-    public async getUserInfo(): Promise<UserInfo> {
+    public async getUserInfo(): Promise<User> {
         const sessionInfoRequest = await fetch(`${OdooAPI.baseUrl}/web/session/get_session_info`,
             {
                 method: 'POST',
@@ -50,7 +59,7 @@ class OdooAPI {
         if (session_info.error) {
             throw new Error(session_info.error.message);
         }
-        const user: UserInfo = {
+        const user: User = {
             id: session_info.result.uid,
             name: session_info.result.name,
             username: session_info.result.username.includes('@') ? session_info.result.username.split('@')[0] : session_info.result.username,
@@ -70,7 +79,7 @@ class OdooAPI {
         if (owner) {
             domains.push(this.ownerDomain);
         }
-        const domain = this.expressionOr(domains);
+        const domain = [...OdooAPI.baseDomain, ...this.expressionOr(domains)];
         const taskRequest = await fetch(`${OdooAPI.baseUrl}/web/dataset/call_kw`, {
             method: 'POST',
             headers: {
@@ -82,33 +91,67 @@ class OdooAPI {
                 method: 'call_kw',
                 params: {
                     model: 'project.task',
-                    method: 'search_read',
-                    args: [
-                        domain,
-                    ],
+                    method: 'web_search_read',
+                    args: [],
                     kwargs: {
-                        fields: TASK_FIELDS,
+                        domain: domain,
+                        specification: readSpecs.task,
                         limit: 10,
-                        order: 'date_last_stage_update  desc'
+                        order: 'date_last_stage_update desc'
                     }
                 }
             })
         })
         const jsonResponse = await taskRequest.json();
-        const tasks = [];
-        for (const task of jsonResponse.result) {
-            tasks.push({
-                id: task.id,
-                displayName: task.display_name,
-                projectId: task.project_id,
-                stageId: task.stage_id,
-                userIds: task.user_ids,
-                reviewerId: task.reviewer_id,
-                xOwnerId: task.x_owner_id
-            })
+        const tasks: Task[] = [];
+        for (const task of jsonResponse.result.records) {
+            tasks.push(camelCasify(task) as unknown as Task)
         }
         return tasks;
     }
+
+    public async getTaskTimesheet(taskId: number): Promise<Timesheet[]> {
+        const domain: Domain[] = [['task_id', '=', taskId]]
+        const timesheetRequest = await fetch(`${OdooAPI.baseUrl}/web/dataset/call_kw`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                id: 1,
+                jsonrpc: '2.0',
+                method: 'call_kw',
+                params: {
+                    model: 'account.analytic.line',
+                    method: 'web_search_read',
+                    args: [],
+                    kwargs: {
+                        domain: domain,
+                        specification: readSpecs.timesheet,
+                        order: 'user_id desc'
+                    }
+                }
+            })
+        })
+        const jsonResponse = await timesheetRequest.json();
+        const timesheets: Timesheet[] = [];
+        for (const timesheet of jsonResponse.result.records) {
+            timesheets.push({
+                id: timesheet.id,
+                name: timesheet.name,
+                unitAmount: timesheet.unit_amount,
+                user: {
+                    id: timesheet.user_id.id,
+                    name: timesheet.user_id.display_name,
+                    username: timesheet.user_id.login,
+                    avatarUrl: `${OdooAPI.baseUrl}/web/image/res.users/${timesheet.user_id.id}/avatar_128`
+                },
+                billable: timesheet.timesheet_invoice_type !== 'non_billable'
+            })
+        }
+        return timesheets;
+    }
 }
 
-export const odooApi = new OdooAPI('');
+export { OdooAPI };
+export default new OdooAPI('');

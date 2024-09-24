@@ -3,7 +3,6 @@ import { useMainStore } from './store/main'
 import './index.css'
 import { Today } from './pages/today'
 import Layout from './components/layout'
-import UserMenu from './components/userMenu'
 
 function App() {
     const { isAuthenticated, currentView, checkAndSetAuth } = useMainStore()
@@ -16,7 +15,6 @@ function App() {
         <Layout>
             {isAuthenticated ? (
                 <div className="flex flex-col h-full">
-                    <UserMenu />
                     <div className="flex-grow p-4 overflow-y-auto">
                         {currentView === 'today' && <Today />}
                     </div>

@@ -16,7 +16,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <NavigationBar />
         </header>
       )}
-      <main className={`flex-grow overflow-y-auto ${isAuthenticated ? 'pt-16' : ''}`}>
+      <main className={"flex-grow overflow-y-auto"}>
         {children}
       </main>
     </div>

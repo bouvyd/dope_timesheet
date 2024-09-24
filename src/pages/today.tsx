@@ -1,10 +1,9 @@
-import { useMainStore } from "../store/main"
 import { useEffect } from "react"
+import TaskCard from "../components/taskCard"
+import { useMainStore } from "../store/main"
 
 export const Today = () => {
     const { tasks, fetchTasks } = useMainStore()
-
-    console.log(tasks)
 
     useEffect(() => {
         fetchTasks()
@@ -12,12 +11,12 @@ export const Today = () => {
 
     return (
         <div>
-            <h1>Today<button className="text-purple text-sm" onClick={fetchTasks}> (sync)</button></h1>
-            <ul>
+            <button className="text-purple text-sm" onClick={fetchTasks}> (sync)</button>
+            <div className="flex flex-col gap-2">
                 {tasks?.map((task) => (
-                    <li key={task.id}>{task.displayName}</li>
+                    <TaskCard key={task.id} task={task} />
                 ))}
-            </ul>
+            </div>
         </div>
     )
 }

@@ -1,7 +1,6 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
-import { odooApi } from '../api/odoo'
-import { Task, UserInfo } from '../global/types'
+import odooApi from '../api/odoo'
+import { Task, User } from '../global/types'
 
 
 
@@ -9,7 +8,7 @@ interface MainState {
   isAuthenticated: boolean
   currentView: 'today' | 'inTheZone' | 'report'
   tasks: Task[]
-  userInfo: UserInfo
+  userInfo: User
   setIsAuthenticated: (value: boolean) => void
   setCurrentView: (view: 'today' | 'inTheZone' | 'report') => void
   addTask: (task: Task) => void
@@ -17,11 +16,10 @@ interface MainState {
   removeTask: (id: number) => void
   fetchTasks: () => Promise<void>
   checkAndSetAuth: () => Promise<void>
-  setUserInfo: (userInfo: UserInfo) => void
+  setUserInfo: (userInfo: User) => void
 }
 
 export const useMainStore = create<MainState>()(
-  persist(
     (set) => ({
       isAuthenticated: false,
       currentView: 'today',
@@ -69,9 +67,6 @@ export const useMainStore = create<MainState>()(
         }
       },
       setUserInfo: (userInfo) => set({ userInfo }),
-    }),
-    {
-      name: 'main-storage',
     }
   )
 )
