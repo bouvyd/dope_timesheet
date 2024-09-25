@@ -30,6 +30,8 @@ const TaskCard = ({ task }: { task: Task }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [timesheets, setTimesheets] = useState<Timesheet[]>([]);
     const [todayDuration, setTodayDuration] = useState(0)
+    const [isHovered, setIsHovered] = useState(false)
+
     const { startTimer, stopTimer, currentTimer, durationPerTask, userInfo } = useMainStore()
 
     useEffect(() => {
@@ -91,6 +93,29 @@ const TaskCard = ({ task }: { task: Task }) => {
         window.open(url, '_blank');
     }
 
+    function toggleTimer() {
+        if (isTimerRunning()) {
+            stopTimer(task.id)
+        } else {
+            startTimer(task.id)
+        }
+    }
+
+    function isTimerRunning() {
+        return currentTimer && currentTimer.taskId === task.id
+    }
+
+    function getTimerColor() {
+        if (isHovered) {
+            return isTimerRunning() ? 'bg-yellow' : 'bg-green'
+        }
+        return isTimerRunning() ? 'bg-green' : 'bg-blue'
+    }
+
+    function getHoveredShadowColor() {
+        return isTimerRunning() ? 'hover:shadow-yellow/40' : 'hover:shadow-green/40'
+    }
+
     useEffect(() => {
         const updateDuration = () => {
             let duration = 0
@@ -114,18 +139,35 @@ const TaskCard = ({ task }: { task: Task }) => {
     const toggleModal = () => setIsOpen(!isOpen);
 
     return (
-        <>
+        <div onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
             <motion.div
                 layoutId={`task-${task.id}`}
                 layout="position"
-                onClick={toggleModal}
-                className="bg-white shadow-md flex flex-col gap-1 rounded p-2 cursor-pointer hover:shadow-lg transition-shadow"
+                className="bg-white shadow-md flex flex-col gap-1 rounded cursor-pointer hover:shadow-lg transition-shadow"
             >
-                <motion.div className="font-semibold text-ellipsis truncate" layout>{task.displayName}</motion.div>
-                <motion.div className="flex flex-row gap-3 justify-between align-bottom text-xs text-gray-500" layout>
-                    <span className="truncate text-ellipsis">{task.projectId?.displayName}</span>
-                    <span className="truncate text-ellipsis">{task.stageId?.displayName}</span>
-                </motion.div>
+                <div className="flex flex-row">
+                    <div className="flex flex-col truncate p-2" onClick={toggleModal}>
+                        <div className="font-semibold text-ellipsis truncate">{task.displayName}</div>
+                        <div className="flex flex-row gap-3 justify-between align-bottom text-xs text-gray-500">
+                            <span className="truncate text-ellipsis">{task.projectId?.displayName}</span>
+                            <span className="truncate text-ellipsis">{task.stageId?.displayName}</span>
+                        </div>
+                    </div>
+                    <AnimatePresence>
+                        {(todayDuration > 0 || isHovered) && <motion.div
+                            className={`text-xs text-white ${getTimerColor()} rounded-r w-1/5 flex-shrink-0 flex items-center justify-center transition-colors ${getHoveredShadowColor()} hover:shadow-[0_0_8px_3px] transition-shadow`}
+                            initial={{ opacity: 0, width: 0 }}
+                            animate={{ opacity: 1, width: '20%' }}
+                            exit={{ opacity: 0, width: 0 }}
+                            onClick={toggleTimer}
+                        >
+                            {isHovered ?
+                                isTimerRunning() ? "Pause" : "Start" :
+                                `+${todayDuration}min`
+                            }
+                        </motion.div>}
+                    </AnimatePresence>
+                </div>
             </motion.div>
 
             <AnimatePresence>
@@ -221,7 +263,7 @@ const TaskCard = ({ task }: { task: Task }) => {
                     </motion.div>
                 )}
             </AnimatePresence >
-        </>
+        </div>
     );
 };
 
