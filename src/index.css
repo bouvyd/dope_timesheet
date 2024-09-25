@@ -13,8 +13,8 @@
 }
 
 html {
-  min-width: 300px;
-  min-height: 500px;
+  min-width: 400px;
+  min-height: 600px;
   font-family: 'Inter', 'Roboto', 'Segoe UI', 'Arial', 'Helvetica', sans-serif;
   color: #374151;
 }

@@ -6,6 +6,9 @@ export default {
     ],
     theme: {
         extend: {
+            transitionProperty: {
+                'radius': 'border-top-left-radius, border-top-right-radius, border-bottom-left-radius, border-bottom-right-radius',
+            },
             fontFamily: {
                 caveat: ['Caveat', 'sans-serif'],
                 inter: ['Inter', 'sans-serif'],

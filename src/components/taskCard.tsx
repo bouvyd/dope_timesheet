@@ -14,7 +14,7 @@ const TimesheetStat = ({ info }: {
 }) => {
     return (
         <div className="flex flex-row gap-2 cursor-default my-1">
-            <img src={info.user.avatarUrl} alt={info.user.name} className="w-5 h-5 rounded-full" />
+            <img src={info.user.avatarUrl} alt={info.user.name} className="w-4 h-4 rounded-full" />
             <span className="text-gray-700 flex-grow truncate text-ellipsis">{info.user.name}</span>
             {info.totalBillable !== info.totalHours && <span className="text-gray-300 hover:text-gray-500 transition-colors">
                 ({formatFloatTime(info.totalBillable)})
@@ -109,7 +109,7 @@ const TaskCard = ({ task }: { task: Task }) => {
         if (isHovered) {
             return isTimerRunning() ? 'bg-yellow' : 'bg-green'
         }
-        return isTimerRunning() ? 'bg-green' : 'bg-blue'
+        return isTimerRunning() ? 'bg-green' : 'bg-blue/50'
     }
 
     function getHoveredShadowColor() {
@@ -142,12 +142,16 @@ const TaskCard = ({ task }: { task: Task }) => {
         <div onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
             <motion.div
                 layoutId={`task-${task.id}`}
-                layout="position"
-                className="bg-white shadow-md flex flex-col gap-1 rounded cursor-pointer hover:shadow-lg transition-shadow"
+                className="bg-white shadow-md flex flex-col rounded cursor-pointer hover:shadow-lg transition-shadow"
             >
-                <div className="flex flex-row">
-                    <div className="flex flex-col truncate p-2" onClick={toggleModal}>
-                        <div className="font-semibold text-ellipsis truncate">{task.displayName}</div>
+                <div className="flex flex-row gap-1 justify-between">
+                    <div className="flex flex-col truncate flex-grow p-2" onClick={toggleModal}>
+                        <button onClick={() => openTask(task)} className="hover:text-purple font-semibold mb-2 flex flex-row gap-1 cursor-pointer text-left transition-colors text-ellipsis truncate">
+                            <span className="text-ellipsis truncate">
+                                {task.displayName}
+                            </span>
+                            <span className="text-gray-500 text-sm font-normal"> #{task.id}</span>
+                        </button>
                         <div className="flex flex-row gap-3 justify-between align-bottom text-xs text-gray-500">
                             <span className="truncate text-ellipsis">{task.projectId?.displayName}</span>
                             <span className="truncate text-ellipsis">{task.stageId?.displayName}</span>
@@ -155,9 +159,9 @@ const TaskCard = ({ task }: { task: Task }) => {
                     </div>
                     <AnimatePresence>
                         {(todayDuration > 0 || isHovered) && <motion.div
-                            className={`text-xs text-white ${getTimerColor()} rounded-r w-1/5 flex-shrink-0 flex items-center justify-center transition-colors ${getHoveredShadowColor()} hover:shadow-[0_0_8px_3px] transition-shadow`}
+                            className={`text-xs text-white ${getTimerColor()} ${isOpen ? 'rounded-full' : 'rounded-r'} aspect-square flex-shrink-0 flex items-center justify-center transition-shadow transition-colors ${getHoveredShadowColor()} hover:shadow-[0_0_8px_3px]`}
                             initial={{ opacity: 0, width: 0 }}
-                            animate={{ opacity: 1, width: '20%' }}
+                            animate={{ opacity: 1, width: '60px' }}
                             exit={{ opacity: 0, width: 0 }}
                             onClick={toggleTimer}
                         >
@@ -168,61 +172,52 @@ const TaskCard = ({ task }: { task: Task }) => {
                         </motion.div>}
                     </AnimatePresence>
                 </div>
-            </motion.div>
-
-            <AnimatePresence>
-                {isOpen && (
-                    <motion.div
-
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        onClick={toggleModal}
-                        className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-                    >
-                        <motion.div
-                            layoutId={`task-${task.id}`}
-                            className="absolute bg-white rounded shadow-lg p-2 w-11/12 h-5/6 m-2 bg-white overflow-y-auto flex flex-col"
-                            onClick={(e) => e.stopPropagation()}
-                        >
-                            <span className="font-semibold cursor-default">{task.projectId?.displayName}</span>
-                            <span className="cursor-default">▶ {task.stageId?.displayName}</span>
-                            <button onClick={() => openTask(task)} className="text-lg hover:text-purple font-semibold mb-2 cursor-pointer text-left transition-colors">
-                                <span className="text-ellipsis">
-                                    {task.displayName}
-                                    <span className="text-gray-500 text-sm font-normal"> #{task.id}</span>
-                                </span>
-                            </button>
-                            <div className="mb-5 text-gray-400 text-xs flex flex-col gap-1 items-start truncate text-ellipsis">
-                                {task.mntSubscriptionId &&
-                                    <button onClick={() => openSubscription(task)} className="hover:text-purple truncate text-ellipsis transition-colors">
-                                        {task.mntSubscriptionId.displayName}
-                                    </button>
-                                }
-                                {task.partnerId &&
-                                    <button onClick={() => openPartner(task)} className="hover:text-purple truncate text-ellipsis transition-colors">
-                                        {task.partnerId.displayName}
-                                    </button>
-                                }
-                            </div>
-                            <div className="flex flex-col flex-grow">
-                                {timesheets.length > 0 ? (
-                                    <>
+                <AnimatePresence>
+                    {isOpen && (
+                        <motion.div className="flex flex-col flex-grow p-2"
+                            initial={{
+                                height: 0,
+                                opacity: 0,
+                            }}
+                            animate={{
+                                height: 'auto',
+                                opacity: 1,
+                                transition: {
+                                    height: {
+                                        duration: 0.4,
+                                    },
+                                    opacity: {
+                                        duration: 0.4,
+                                    },
+                                },
+                            }}
+                            exit={{
+                                height: 0,
+                                opacity: 0,
+                                transition: {
+                                    height: {
+                                        duration: 0.4,
+                                    },
+                                    opacity: {
+                                        duration: 0.4,
+                                    },
+                                },
+                            }}>
+                            <div className="flex flex-row gap-8">
+                                {(timesheets.length > 0 || todayDuration > 0) ? (
+                                    <div className="flex flex-col my-1 self-end">
                                         {aggregateTimesheets(timesheets).map((info, index) => (
                                             <TimesheetStat key={index} info={info} />
                                         ))}
                                         {todayDuration > 0 &&
-                                            <motion.div
-                                                className="font-bold text-right text-green cursor-default"
-                                                initial={{ height: 0, opacity: 0 }}
-                                                animate={{ height: 'auto', opacity: 1 }}
-                                                exit={{ height: 0, opacity: 0 }}
-                                            >+ {todayDuration} min</motion.div>}
-                                    </>
+                                            <div className="font-bold text-right text-green">
+                                                + {todayDuration} min
+                                            </div>}
+                                    </div>
                                 ) : (
                                     <span className="text-gray-300">No timesheets found.</span>
                                 )}
-                                <div className="small w-1/2 self-end flex-col gap-2 mt-2 text-gray-400 cursor-default">
+                                <div className="small w-1/2 self-end flex-col gap-2 my-2 text-gray-400">
                                     <div className="flex flex-row gap-2 text-bolder justify-between">
                                         <span className="flex-grow">Allocated</span>
                                         <span>{formatFloatTime(task.allocatedHours)}</span>
@@ -237,32 +232,10 @@ const TaskCard = ({ task }: { task: Task }) => {
                                     </div>
                                 </div>
                             </div>
-
-                            <div className="w-full flex flex-row gap-2">
-                                {currentTimer && currentTimer.taskId === task.id ?
-                                    <button
-                                        onClick={() => stopTimer(task.id)}
-                                        className="py-2 bg-yellow text-white flex-grow rounded"
-                                    >
-                                        Pause
-                                    </button> : <button
-                                        onClick={() => startTimer(task.id)}
-                                        className="py-2 bg-green text-white flex-grow rounded"
-                                    >
-                                        Start
-                                    </button>
-                                }
-                                <button
-                                    onClick={toggleModal}
-                                    className="py-2 flex-grow"
-                                >
-                                    Close
-                                </button>
-                            </div>
                         </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence >
+                    )}
+                </AnimatePresence>
+            </motion.div>
         </div>
     );
 };
