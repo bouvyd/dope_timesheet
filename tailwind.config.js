@@ -13,7 +13,7 @@ export default {
             colors: {
                 purple: '#714b67',
                 blue: '#1bb6f9',
-                orange: '#fbb130',
+                yellow: '#fbb130',
                 red: '#fc787d',
                 green: '#00ceb3',
                 body: '#374151'

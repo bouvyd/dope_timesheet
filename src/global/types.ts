@@ -34,4 +34,10 @@ export interface User {
     avatarUrl: string
 }
 
-export type Domain = (ThisType<string>[] | string | number | boolean)[]
+export type Domain = (ThisType<string>[] | string | number | boolean)[] 
+
+export interface Timer {
+    taskId: number
+    start: Date
+}
+

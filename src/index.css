@@ -42,3 +42,22 @@ body, #root {
     top: 0.6em;
     padding: 0 0.25em;
   }
+
+.dope-colors {
+  animation: color-cycle 4s linear infinite;
+}
+
+@keyframes color-cycle {
+  0%, 100% {
+    color: #fc787d; /* red text (opposite of green glow) */
+  }
+  25% {
+    color: #fbb130; /* yellow text (opposite of blue glow) */
+  }
+  50% {
+    color: #1bb6f9; /* blue text (opposite of yellow glow) */
+  }
+  75% {
+    color: #00ceb3; /* green text (opposite of red glow) */
+  }
+}

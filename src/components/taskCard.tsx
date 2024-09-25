@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Task, Timesheet, User } from '../global/types';
 import odooApi, { OdooAPI } from '../api/odoo';
 import { formatFloatTime } from '../utils/format';
+import { useMainStore } from '../store/main';
 
 const TimesheetStat = ({ info }: {
     info: {
@@ -12,7 +13,7 @@ const TimesheetStat = ({ info }: {
     }
 }) => {
     return (
-        <div className="flex flex-row gap-2 cursor-default">
+        <div className="flex flex-row gap-2 cursor-default my-1">
             <img src={info.user.avatarUrl} alt={info.user.name} className="w-5 h-5 rounded-full" />
             <span className="text-gray-700 flex-grow truncate text-ellipsis">{info.user.name}</span>
             {info.totalBillable !== info.totalHours && <span className="text-gray-300 hover:text-gray-500 transition-colors">
@@ -28,6 +29,8 @@ const TimesheetStat = ({ info }: {
 const TaskCard = ({ task }: { task: Task }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [timesheets, setTimesheets] = useState<Timesheet[]>([]);
+    const [todayDuration, setTodayDuration] = useState(0)
+    const { startTimer, stopTimer, currentTimer, durationPerTask, userInfo } = useMainStore()
 
     useEffect(() => {
         if (isOpen) {
@@ -69,9 +72,8 @@ const TaskCard = ({ task }: { task: Task }) => {
                 totalBillable: currentTotalBillable
             });
         }
-        console.log(result);
-
-        return result;
+        // reorder so current user is last, then preserve previous order
+        return result.sort((a, b) => a.user.id === userInfo.id ? 1 : b.user.id === userInfo.id ? -1 : 0);
     }
 
     function openTask(task: Task) {
@@ -88,6 +90,26 @@ const TaskCard = ({ task }: { task: Task }) => {
         const url = OdooAPI.baseUrl + `/odoo/contacts/${task.partnerId?.id}`;
         window.open(url, '_blank');
     }
+
+    useEffect(() => {
+        const updateDuration = () => {
+            let duration = 0
+            const taskDuration = durationPerTask.find((taskDuration) => taskDuration.taskId === task.id)
+            if (taskDuration) {
+                duration += taskDuration.duration
+            }
+            if (currentTimer && currentTimer.taskId === task.id) {
+                duration += (new Date().getTime() - currentTimer.start.getTime()) / 60000
+            }
+            setTodayDuration(Math.ceil(duration))
+        }
+
+        updateDuration() // Initial call
+
+        const intervalId = setInterval(updateDuration, 60000) // Run every 60 seconds
+
+        return () => clearInterval(intervalId) // Cleanup on unmount
+    }, [currentTimer, durationPerTask, task.id])
 
     const toggleModal = () => setIsOpen(!isOpen);
 
@@ -123,7 +145,7 @@ const TaskCard = ({ task }: { task: Task }) => {
                         >
                             <span className="font-semibold cursor-default">{task.projectId?.displayName}</span>
                             <span className="cursor-default">▶ {task.stageId?.displayName}</span>
-                            <button onClick={() => openTask(task)} className="text-lg hover:text-purple font-semibold mb-2 cursor-pointer text-left">
+                            <button onClick={() => openTask(task)} className="text-lg hover:text-purple font-semibold mb-2 cursor-pointer text-left transition-colors">
                                 <span className="text-ellipsis">
                                     {task.displayName}
                                     <span className="text-gray-500 text-sm font-normal"> #{task.id}</span>
@@ -141,11 +163,20 @@ const TaskCard = ({ task }: { task: Task }) => {
                                     </button>
                                 }
                             </div>
-                            <div className="flex flex-col gap-2 flex-grow">
-                                {timesheets.length > 0 ? 
-                                    (aggregateTimesheets(timesheets).map((info, index) => (
-                                        <TimesheetStat key={index} info={info} />
-                                    ))
+                            <div className="flex flex-col flex-grow">
+                                {timesheets.length > 0 ? (
+                                    <>
+                                        {aggregateTimesheets(timesheets).map((info, index) => (
+                                            <TimesheetStat key={index} info={info} />
+                                        ))}
+                                        {todayDuration > 0 &&
+                                            <motion.div
+                                                className="font-bold text-right text-green cursor-default"
+                                                initial={{ height: 0, opacity: 0 }}
+                                                animate={{ height: 'auto', opacity: 1 }}
+                                                exit={{ height: 0, opacity: 0 }}
+                                            >+ {todayDuration} min</motion.div>}
+                                    </>
                                 ) : (
                                     <span className="text-gray-300">No timesheets found.</span>
                                 )}
@@ -165,16 +196,31 @@ const TaskCard = ({ task }: { task: Task }) => {
                                 </div>
                             </div>
 
-                            <button
-                                onClick={toggleModal}
-                                className="mt-4 px-4 py-2 font-light w-full"
-                            >
-                                Done
-                            </button>
+                            <div className="w-full flex flex-row gap-2">
+                                {currentTimer && currentTimer.taskId === task.id ?
+                                    <button
+                                        onClick={() => stopTimer(task.id)}
+                                        className="py-2 bg-yellow text-white flex-grow rounded"
+                                    >
+                                        Pause
+                                    </button> : <button
+                                        onClick={() => startTimer(task.id)}
+                                        className="py-2 bg-green text-white flex-grow rounded"
+                                    >
+                                        Start
+                                    </button>
+                                }
+                                <button
+                                    onClick={toggleModal}
+                                    className="py-2 flex-grow"
+                                >
+                                    Close
+                                </button>
+                            </div>
                         </motion.div>
                     </motion.div>
                 )}
-            </AnimatePresence>
+            </AnimatePresence >
         </>
     );
 };
