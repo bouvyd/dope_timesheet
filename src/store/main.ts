@@ -1,18 +1,18 @@
 import { create } from 'zustand'
 import odooApi from '../api/odoo'
-import { Task, User, Timer } from '../global/types'
+import { Task, User, Timer, Timesheet } from '../global/types'
 
 
 
 interface MainState {
     isAuthenticated: boolean
-    currentView: 'today' | 'inTheZone' | 'report'
+    currentView: 'today' | 'timers' | 'report'
     tasks: Task[]
     durationPerTask: { taskId: number, duration: number }[]
     currentTimer: Timer | null
     userInfo: User
     setIsAuthenticated: (value: boolean) => void
-    setCurrentView: (view: 'today' | 'inTheZone' | 'report') => void
+    setCurrentView: (view: 'today' | 'timers' | 'report') => void
     addTask: (task: Task) => void
     updateTask: (id: number, updates: Partial<Task>) => void
     removeTask: (id: number) => void
@@ -21,6 +21,9 @@ interface MainState {
     stopTimer: (taskId: number) => void
     checkAndSetAuth: () => Promise<void>
     setUserInfo: (userInfo: User) => void
+    addDuration: (taskId: number, duration: number) => void
+    roundDuration: (taskId: number) => void
+    fetchTimesheets: (taskId: number) => Promise<Timesheet[]>
 }
 
 export const useMainStore = create<MainState>()(
@@ -31,7 +34,7 @@ export const useMainStore = create<MainState>()(
         currentTimer: null,
         durationPerTask: [],
         userInfo: {
-            id: '',
+            id: 0,
             name: '',
             username: '',
             avatarUrl: '',
@@ -120,7 +123,7 @@ export const useMainStore = create<MainState>()(
                 console.warn(error)
                 set({
                     isAuthenticated: false, userInfo: {
-                        id: '',
+                        id: 0,
                         name: '',
                         username: '',
                         avatarUrl: '',
@@ -129,6 +132,35 @@ export const useMainStore = create<MainState>()(
             }
         },
         setUserInfo: (userInfo) => set({ userInfo }),
-    }
-    )
+        addDuration: (taskId, duration) => set((state) => ({
+            durationPerTask: state.durationPerTask.map((taskDuration) => 
+                taskDuration.taskId === taskId
+                  ? { ...taskDuration, duration: taskDuration.duration + duration }
+                  : taskDuration
+            )
+        })),
+        roundDuration: (taskId) => set((state) => {
+            const newDurationPerTask = state.durationPerTask.map((taskDuration) => {
+                if (taskDuration.taskId === taskId) {
+                    return {
+                        taskId,
+                        duration: Math.ceil(taskDuration.duration / 15) * 15
+                    }
+                }
+                return taskDuration
+            })
+            return {
+                durationPerTask: newDurationPerTask
+            }
+        }),
+        fetchTimesheets: async (taskId) => {
+            try {
+                const timesheets = await odooApi.getTaskTimesheet(taskId)
+                return timesheets
+            } catch (error) {
+                console.warn(error)
+                return []
+            }
+        }
+    })
 )

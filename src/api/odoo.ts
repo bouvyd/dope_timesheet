@@ -1,26 +1,26 @@
-import { Domain, Task, User, Timesheet } from '../global/types'
+import { Domain, Task, User, Timesheet, M2OTuple } from '../global/types'
 import { camelCasify } from '../utils/apiUtils';
 import readSpecs from './readSpecs.json'
 
 
 class OdooAPI {
     private static _baseUrl = 'https://www.odoo.com';
-    private _uid: string;
+    private _uid: number;
 
-    constructor(uid: string) {
+    constructor(uid: number) {
         this._uid = uid;
     }
 
-    get uid(): string {
+    get uid(): number {
         return this._uid;
     }
 
-    set uid(uid: string) {
+    set uid(uid: number) {
         this._uid = uid;
     }
 
     get assigneeDomain(): Domain {
-        return ['user_ids', 'in', this.uid];
+        return ['user_ids', 'in', [this.uid]];
     }
 
     get reviewerDomain(): Domain {
@@ -96,7 +96,7 @@ class OdooAPI {
                     kwargs: {
                         domain: domain,
                         specification: readSpecs.task,
-                        limit: 10,
+                        limit: null,
                         order: 'date_last_stage_update desc'
                     }
                 }
@@ -105,7 +105,10 @@ class OdooAPI {
         const jsonResponse = await taskRequest.json();
         const tasks: Task[] = [];
         for (const task of jsonResponse.result.records) {
-            tasks.push(camelCasify(task) as unknown as Task)
+            const userIds = task.user_ids as M2OTuple[]
+            const parsedTask = camelCasify(task) as unknown as Task
+            parsedTask.userIds = userIds
+            tasks.push(parsedTask)
         }
         return tasks;
     }
@@ -154,4 +157,4 @@ class OdooAPI {
 }
 
 export { OdooAPI };
-export default new OdooAPI('');
+export default new OdooAPI(0);

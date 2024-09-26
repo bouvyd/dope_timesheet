@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useMainStore } from './store/main'
 import './index.css'
 import { Today } from './pages/today'
+import { Timers } from './pages/timers'
 import Layout from './components/layout'
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
                 <div className="flex flex-col h-full">
                     <div className="flex-grow p-4 overflow-y-auto">
                         {currentView === 'today' && <Today />}
+                        {currentView === 'timers' && <Timers />}
                     </div>
                 </div>
             ) : (

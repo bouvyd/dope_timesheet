@@ -28,7 +28,7 @@ export interface Timesheet {
 
 
 export interface User {
-    id: string
+    id: number
     name: string
     username: string
     avatarUrl: string

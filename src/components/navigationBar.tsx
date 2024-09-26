@@ -1,3 +1,4 @@
+import React from 'react'
 import { useMainStore } from '../store/main'
 
 const NavigationBar = () => {
@@ -7,19 +8,19 @@ const NavigationBar = () => {
         <nav className="text-lg border-b border-purple p-4 w-full h-8 flex items-center justify-center shadow-sm" id="navigation-bar">
             <div className="flex space-x-4 font-semibold">
                 <button
-                    className={`px-2 py-1 ${currentView === 'today' ? 'active text-white' : ''}`}
+                    className={`px-2 py-1 highlight-marker ${currentView === 'today' ? 'active text-white' : ''} before:bg-purple`}
                     onClick={() => setCurrentView('today')}
                 >
                     Plan
                 </button>
                 <button
-                    className={`px-2 py-1 ${currentView === 'inTheZone' ? 'active text-white' : ''}`}
-                    onClick={() => setCurrentView('inTheZone')}
+                    className={`px-2 py-1 highlight-marker ${currentView === 'timers' ? 'active text-white' : ''} before:bg-purple`}
+                    onClick={() => setCurrentView('timers')}
                 >
                     Werk
                 </button>
                 <button
-                    className={`px-2 py-1 ${currentView === 'report' ? 'active text-white' : ''}`}
+                    className={`px-2 py-1 highlight-marker ${currentView === 'report' ? 'active text-white' : ''} before:bg-purple`}
                     onClick={() => setCurrentView('report')}
                 >
                     Leave
