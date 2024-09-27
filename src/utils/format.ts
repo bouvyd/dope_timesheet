@@ -12,3 +12,9 @@ export function formatFloatTime(time: number): string {
     
     return `${formattedHours}:${formattedMinutes}`;
 }
+
+export function formatDuration(duration: number): string {
+    const hours = Math.floor(duration / 60);
+    const minutes = Math.floor(duration % 60);
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+}

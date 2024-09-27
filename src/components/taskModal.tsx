@@ -4,6 +4,7 @@ import { Task, Timesheet, User } from '../global/types';
 import { OdooAPI } from '../api/odoo';
 import { formatFloatTime } from '../utils/format';
 import { useMainStore } from '../store/main';
+import { findRunningTimer } from '../utils/utils';
 
 const TimesheetStat = ({ info }: {
     info: {
@@ -31,7 +32,8 @@ const TaskModal = ({ task, onClose }: { task: Task, onClose: () => void }) => {
     const [timesheets, setTimesheets] = useState<Timesheet[]>([]);
     const [isHovered, setIsHovered] = useState(false)
 
-    const { startTimer, stopTimer, currentTimer, durationPerTask, userInfo, fetchTimesheets } = useMainStore()
+    const { startTimer, stopTimer, timers, userInfo, fetchTimesheets } = useMainStore()
+    const currentTimer = findRunningTimer(timers)
 
     useEffect(() => {
         fetchTimesheets(task.id).then(setTimesheets)
@@ -90,14 +92,14 @@ const TaskModal = ({ task, onClose }: { task: Task, onClose: () => void }) => {
 
     function toggleTimer() {
         if (isTimerRunning()) {
-            stopTimer(task.id)
+            stopTimer(task.id, 'task')
         } else {
-            startTimer(task.id)
+            startTimer(task.id, 'task', '', 0)
         }
     }
 
     function isTimerRunning() {
-        return currentTimer && currentTimer.taskId === task.id
+        return currentTimer && currentTimer.resourceId === task.id && currentTimer.resourceType === 'task'
     }
 
     function getTimerColor() {
@@ -114,11 +116,11 @@ const TaskModal = ({ task, onClose }: { task: Task, onClose: () => void }) => {
     useEffect(() => {
         const updateDuration = () => {
             let duration = 0
-            const taskDuration = durationPerTask.find((taskDuration) => taskDuration.taskId === task.id)
+            const taskDuration = timers.find((timer) => timer.resourceId === task.id && timer.resourceType === 'task')
             if (taskDuration) {
-                duration += taskDuration.duration
+                duration += taskDuration.previousDuration
             }
-            if (currentTimer && currentTimer.taskId === task.id) {
+            if (currentTimer && currentTimer.resourceId === task.id && currentTimer.resourceType === 'task' && currentTimer.start) {
                 duration += (new Date().getTime() - currentTimer.start.getTime()) / 60000
             }
             setTodayDuration(Math.ceil(duration))
@@ -129,7 +131,7 @@ const TaskModal = ({ task, onClose }: { task: Task, onClose: () => void }) => {
         const intervalId = setInterval(updateDuration, 60000) // Run every 60 seconds
 
         return () => clearInterval(intervalId) // Cleanup on unmount
-    }, [currentTimer, durationPerTask, task.id])
+    }, [currentTimer, timers, task.id])
 
 
     return (

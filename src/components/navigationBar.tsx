@@ -5,26 +5,21 @@ const NavigationBar = () => {
     const { currentView, setCurrentView } = useMainStore()
 
     return (
-        <nav className="text-lg border-b border-purple p-4 w-full h-8 flex items-center justify-center shadow-sm" id="navigation-bar">
+        <nav className="text-lg p-4 w-full h-8 flex items-center justify-center" id="navigation-bar">
             <div className="flex space-x-4 font-semibold">
-                <button
-                    className={`px-2 py-1 highlight-marker ${currentView === 'today' ? 'active text-white' : ''} before:bg-purple`}
-                    onClick={() => setCurrentView('today')}
-                >
-                    Plan
-                </button>
                 <button
                     className={`px-2 py-1 highlight-marker ${currentView === 'timers' ? 'active text-white' : ''} before:bg-purple`}
                     onClick={() => setCurrentView('timers')}
                 >
-                    Werk
+                    Timers
                 </button>
                 <button
-                    className={`px-2 py-1 highlight-marker ${currentView === 'report' ? 'active text-white' : ''} before:bg-purple`}
-                    onClick={() => setCurrentView('report')}
+                    className={`px-2 py-1 highlight-marker ${currentView === 'tasks' ? 'active text-white' : ''} before:bg-purple`}
+                    onClick={() => setCurrentView('tasks')}
                 >
-                    Leave
+                    Tasks
                 </button>
+
             </div>
             <svg xmlns="http://www.w3.org/2000/svg" version="1.1" className="svg-filters" style={{display: 'none'}}>
                 <defs>

@@ -1,7 +1,8 @@
+import React from 'react'
 import { useEffect } from 'react'
 import { useMainStore } from './store/main'
 import './index.css'
-import { Today } from './pages/today'
+import { Tasks } from './pages/tasks'
 import { Timers } from './pages/timers'
 import Layout from './components/layout'
 
@@ -17,7 +18,7 @@ function App() {
             {isAuthenticated ? (
                 <div className="flex flex-col h-full">
                     <div className="flex-grow p-4 overflow-y-auto">
-                        {currentView === 'today' && <Today />}
+                        {currentView === 'tasks' && <Tasks />}
                         {currentView === 'timers' && <Timers />}
                     </div>
                 </div>

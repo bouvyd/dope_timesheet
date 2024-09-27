@@ -1,56 +1,83 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useMainStore } from "../store/main"
-import { formatFloatTime } from "../utils/format"
+import Lottie from "lottie-react";
+import empty from "../assets/animations/empty.json";
+import { FavoriteCard } from "../components/favoriteCard";
+import { AnimatePresence } from "framer-motion";
+import { formatDuration } from "../utils/format";
+import { findRunningTimer, roundDuration } from "../utils/utils";
+import { TimerCard } from "../components/timerCard";
+import { motion } from "framer-motion";
 
 export const Timers = () => {
-    const { durationPerTask, tasks, fetchTasks, addDuration, roundDuration, currentTimer } = useMainStore()
+    const { timers, fetchTasks, favorites } = useMainStore()
+    const [editionMode, setEditionMode] = useState(false)
+
+    const currentTimer = findRunningTimer(timers)
+
+    const totalTime = () => {
+        let total = 0;
+        timers.map((timer) => {
+            total += roundDuration(timer.previousDuration, 15)
+        })
+        return total
+    }
 
     useEffect(() => {
         fetchTasks()
     }, [fetchTasks])
 
-    const runningTasks = tasks?.filter(task => durationPerTask.some(duration => duration.taskId === task.id && duration.duration > 0))
-    const getTaskDuration = (taskId: number) => {
-        const duration = durationPerTask.find(duration => duration.taskId === taskId)
-        return Math.ceil(duration?.duration || 0)
-    }
 
     return (
-        <div className="p-4">
-            {currentTimer && (
-                <div className="mb-4 p-4 bg-green-100 rounded-lg">
-                    <h2 className="text-lg font-semibold mb-2">Current Timer</h2>
-                    <p>{tasks?.find(task => task.id === currentTimer.taskId)?.displayName}</p>
-                    <p>Started: {currentTimer.start.toLocaleTimeString()}</p>
+        <div>
+            <AnimatePresence>
+                {timers.length > 0 && (
+                    <motion.div
+                        className="cursor-default flex flex-row justify-between items-baseline mb-3"
+                        key="total-time"
+                        initial={{ height: 0, opacity:0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                    >
+                        <span className="text-2xl pt-2 leading-1 font-semibold highlight-marker active before:bg-green-200">Hours today</span>
+                        <span className="text-2xl pt-2 leading-1 font-semibold highlight-marker active before:bg-green-200">{formatDuration(totalTime())}</span>
+                    </motion.div>
+                )}
+                {timers.length === 0 && (
+                    <motion.div
+                        className="flex flex-col items-center justify-center opacity-50 cursor-default"
+                        key="empty-timers"
+                        initial={{ height: 0, opacity:0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                    >
+                        <Lottie animationData={empty} loop={true} className="w-1/2 my-4" />
+                        <p className="text-gray-500">No running timers</p>
+                        <p className="text-gray-500 self-start mt-3">Go to the tasks page to start a timer, or pick a favorite below.</p>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+            <motion.div className="flex flex-col gap-2" layout>
+                <AnimatePresence>
+                    {timers.map(timer => (
+                        <TimerCard
+                            key={`timer${timer.resourceType}-${timer.resourceId}`}
+                            timer={timer}
+                            layout={true}
+                            isCurrentTimer={currentTimer?.resourceId === timer.resourceId && currentTimer?.resourceType === timer.resourceType}
+                        />
+                    ))}
+                </AnimatePresence>
+            </motion.div>
+            <div className="flex flex-col gap-2 mt-5">
+                <div className="cursor-default flex flex-row justify-between items-baseline">
+                    <span className="text-2xl pt-2 leading-1 font-semibold highlight-marker active before:bg-yellow-200">Favorites</span>
+                    <button className={`text-xs text-gray-500 hover:${editionMode ? "text-green-500" : "text-yellow-800"} rounded`} onClick={() => setEditionMode(!editionMode)}>{editionMode ? "✓ Done" : "Manage"}</button>
                 </div>
-            )}
-            <h2 className="text-xl font-semibold mb-4">Running Tasks</h2>
-            <ul className="space-y-2">
-                {runningTasks?.map(task => (
-                    <li key={task.id} className="bg-white shadow-sm rounded-lg overflow-hidden">
-                        <div className="p-3 flex items-center justify-between">
-                            <div>
-                                <h3 className="font-semibold">{task.displayName}</h3>
-                                <span className="text-sm text-gray-600">{formatFloatTime(getTaskDuration(task.id) / 60)}</span>
-                            </div>
-                            <div className="flex space-x-2">
-                                <button 
-                                    onClick={() => addDuration(task.id, 15)}
-                                    className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded text-sm"
-                                >
-                                    +15m
-                                </button>
-                                <button 
-                                    onClick={() => roundDuration(task.id)}
-                                    className="bg-green-500 hover:bg-green-600 text-white font-bold py-1 px-2 rounded text-sm"
-                                >
-                                    Round
-                                </button>
-                            </div>
-                        </div>
-                    </li>
+                {favorites?.map(favorite => (
+                    <FavoriteCard key={`${favorite.type}-${favorite.id}`} favorite={favorite} editionMode={editionMode} />
                 ))}
-            </ul>
+            </div>
         </div>
     )
 }

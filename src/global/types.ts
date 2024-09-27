@@ -34,10 +34,19 @@ export interface User {
     avatarUrl: string
 }
 
+export interface Favorite {
+    name: string
+    type: 'task' | 'project'
+    id: number
+}
+
 export type Domain = (ThisType<string>[] | string | number | boolean)[] 
 
 export interface Timer {
-    taskId: number
-    start: Date
+    resourceId: number
+    resourceType: 'task' | 'project'
+    resourceName: string
+    start: Date | null
+    previousDuration: number
+    description: string
 }
-

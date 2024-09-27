@@ -1,3 +1,4 @@
+import React from 'react'
 import { useEffect, useState } from "react"
 import TaskCard from "../components/taskCard"
 import { useMainStore } from "../store/main"
@@ -5,7 +6,7 @@ import { Task, M2OTuple } from "../global/types"
 import { AnimatePresence } from "framer-motion"
 
 
-export const Today = () => {
+export const Tasks: React.FC = () => {
     const { userInfo, tasks, fetchTasks } = useMainStore()
     const [searchQuery, setSearchQuery] = useState<string>("")
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>("")

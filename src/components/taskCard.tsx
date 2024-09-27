@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Task } from '../global/types';
-import { OdooAPI } from '../api/odoo';
 import { useMainStore } from '../store/main';
 import TaskModal from './taskModal';
+import { findRunningTimer } from '../utils/utils';
 
 
 const TaskCard = ({ task }: { task: Task }) => {
@@ -11,24 +11,20 @@ const TaskCard = ({ task }: { task: Task }) => {
     const [todayDuration, setTodayDuration] = useState(0)
     const [isHovered, setIsHovered] = useState(false)
 
-    const { startTimer, stopTimer, currentTimer, durationPerTask, } = useMainStore()
-
-
-    function openTask(task: Task) {
-        const url = OdooAPI.baseUrl + `/odoo/all-tasks/${task.id}`;
-        window.open(url, '_blank');
-    }
+    
+    const { startTimer, stopTimer, timers, } = useMainStore()
+    const currentTimer = findRunningTimer(timers)
 
     function toggleTimer() {
         if (isTimerRunning()) {
-            stopTimer(task.id)
+            stopTimer(task.id, 'task')
         } else {
-            startTimer(task.id)
+            startTimer(task.id, 'task', task.displayName, 0)
         }
     }
 
     function isTimerRunning() {
-        return currentTimer && currentTimer.taskId === task.id
+        return currentTimer && currentTimer.resourceId === task.id && currentTimer.resourceType === 'task'
     }
 
     function getTimerColor() {
@@ -45,11 +41,11 @@ const TaskCard = ({ task }: { task: Task }) => {
     useEffect(() => {
         const updateDuration = () => {
             let duration = 0
-            const taskDuration = durationPerTask.find((taskDuration) => taskDuration.taskId === task.id)
+            const taskDuration = timers.find((timer) => timer.resourceId === task.id && timer.resourceType === 'task')
             if (taskDuration) {
-                duration += taskDuration.duration
+                duration += taskDuration.previousDuration
             }
-            if (currentTimer && currentTimer.taskId === task.id) {
+            if (currentTimer && currentTimer.resourceId === task.id && currentTimer.resourceType === 'task' && currentTimer.start) {
                 duration += (new Date().getTime() - currentTimer.start.getTime()) / 60000
             }
             setTodayDuration(Math.ceil(duration))
@@ -60,7 +56,7 @@ const TaskCard = ({ task }: { task: Task }) => {
         const intervalId = setInterval(updateDuration, 60000) // Run every 60 seconds
 
         return () => clearInterval(intervalId) // Cleanup on unmount
-    }, [currentTimer, durationPerTask, task.id])
+    }, [currentTimer, timers, task.id])
 
     const toggleModal = () => setIsOpen(!isOpen);
 

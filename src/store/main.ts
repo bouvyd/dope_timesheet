@@ -1,38 +1,49 @@
 import { create } from 'zustand'
 import odooApi from '../api/odoo'
-import { Task, User, Timer, Timesheet } from '../global/types'
+import { Task, User, Timer, Timesheet, Favorite } from '../global/types'
+import { findRunningTimer, findResourceTimer, roundDuration } from '../utils/utils'
 
 
 
 interface MainState {
     isAuthenticated: boolean
-    currentView: 'today' | 'timers' | 'report'
+    currentView: 'tasks' | 'timers'
     tasks: Task[]
-    durationPerTask: { taskId: number, duration: number }[]
-    currentTimer: Timer | null
+    favorites: Favorite[]
+    timers: Timer[]
     userInfo: User
     setIsAuthenticated: (value: boolean) => void
-    setCurrentView: (view: 'today' | 'timers' | 'report') => void
+    setCurrentView: (view: 'tasks' | 'timers') => void
     addTask: (task: Task) => void
     updateTask: (id: number, updates: Partial<Task>) => void
     removeTask: (id: number) => void
     fetchTasks: () => Promise<void>
-    startTimer: (taskId: number) => void
-    stopTimer: (taskId: number) => void
+    startTimer: (resourceId: number, resourceType: 'task' | 'project', resourceName: string, duration: number) => void
+    stopTimer: (resourceId: number, resourceType: 'task' | 'project') => void
+    setTimerDescription: (resourceId: number, resourceType: 'task' | 'project', description: string) => void
     checkAndSetAuth: () => Promise<void>
     setUserInfo: (userInfo: User) => void
-    addDuration: (taskId: number, duration: number) => void
-    roundDuration: (taskId: number) => void
+    addDuration: (resourceId: number, resourceType: 'task' | 'project', duration: number) => void
     fetchTimesheets: (taskId: number) => Promise<Timesheet[]>
+    addFavorite: (favorite: Favorite) => void
+    removeFavorite: (id: number) => void
 }
 
 export const useMainStore = create<MainState>()(
     (set) => ({
         isAuthenticated: false,
-        currentView: 'today',
+        currentView: 'timers',
         tasks: [],
-        currentTimer: null,
-        durationPerTask: [],
+        favorites: [{
+            name: 'Dope Timesheets',
+            type: 'project',
+            id: 1,
+        }, {
+            name: 'Dope Task',
+            type: 'task',
+            id: 2,
+        }],
+        timers: [],
         userInfo: {
             id: 0,
             name: '',
@@ -60,59 +71,91 @@ export const useMainStore = create<MainState>()(
                 console.warn(error)
             }
         },
-        startTimer: (taskId) => set((state) => {
-            const newTimer = {
-                taskId,
-                start: new Date(),
+        startTimer: (resourceId, resourceType, resourceName, duration = 0) => set((state) => {
+            const prevTimer = findResourceTimer(state.timers, resourceId, resourceType)
+            let newTimer
+            let newTimers = state.timers
+            if (prevTimer) {
+                newTimer = {    
+                    ...prevTimer,
+                    start: new Date(),
+                    previousDuration: prevTimer.previousDuration + duration,
+                }
+                // pop
+                newTimers = state.timers.filter((timer) => timer.resourceId !== resourceId || timer.resourceType !== resourceType)
+            } else {
+                newTimer = {
+                    resourceId,
+                    resourceType,
+                    resourceName,
+                    start: new Date(),
+                    previousDuration: duration,
+                    description: '',
+                } as Timer
             }
-            if (state.currentTimer) {
-                console.log('stopping existing timer', state.currentTimer, taskId)
+            const currentTimer = findRunningTimer(state.timers)
+            if (currentTimer && currentTimer.resourceId === resourceId && currentTimer.resourceType === resourceType) {
+                newTimer = {
+                    ...currentTimer,
+                    previousDuration: currentTimer.previousDuration + duration,
+                }
+            }
+            if (currentTimer && currentTimer.start) {
                 const end = new Date()
                 // duration in minutes
-                let duration = (end.getTime() - state.currentTimer.start.getTime()) / 60000
-                // add value for current taskId in list
-                state.durationPerTask.forEach((taskDuration) => {
-                    if (taskDuration.taskId === taskId) {
-                        duration += taskDuration.duration
-                    }
-                })
+                const  newDuration = (end.getTime() - currentTimer.start.getTime()) / 60000
+                currentTimer.previousDuration += newDuration
+                currentTimer.start = null
                 // pop from list
-                const newDurationPerTask = state.durationPerTask.filter((taskDuration) => taskDuration.taskId !== taskId)
-                return {
-                    currentTimer: newTimer,
-                    durationPerTask: [...newDurationPerTask, { taskId, duration }]
-                }
             }
             return {
-                currentTimer: newTimer,
+                timers: [newTimer, ...newTimers]
             }
         }),
-        stopTimer: (taskId) => set((state) => {
-            if (state.currentTimer) {
-                console.log('stopping timer', state.currentTimer, taskId)
-                const end = new Date()
-                // duration in minutes
-                const duration = (end.getTime() - state.currentTimer.start.getTime()) / 60000
-                let isInList = false
-                const newDurationPerTask = state.durationPerTask.map((taskDuration) => {
-                    if (taskDuration.taskId === taskId) {
-                        isInList = true
-                        return {
-                            taskId,
-                            duration: taskDuration.duration + duration
-                        }
-                    }
-                    return taskDuration
-                })
-                if (!isInList) {
-                    newDurationPerTask.push({ taskId, duration })
-                }
-                return {
-                    currentTimer: null,
-                    durationPerTask: newDurationPerTask
-                }
+        stopTimer: (resourceId, resourceType) => set((state) => {
+            const currentTimer = findRunningTimer(state.timers)
+            if (!currentTimer) {
+                return {}
             }
-            return {}
+            const end = new Date()
+            // duration in minutes
+            const duration = (end.getTime() - (currentTimer.start?.getTime() ?? end.getTime())) / 60000
+            let isInList = false
+            const newTimers = state.timers.map((timer) => {
+                if (timer.resourceId === resourceId && timer.resourceType === resourceType) {
+                    isInList = true
+                    return {
+                        resourceId,
+                        resourceType,
+                        resourceName: currentTimer?.resourceName ?? '',
+                        previousDuration: timer.previousDuration + duration,
+                        start: null,
+                        description: ''
+                    }
+                }
+                return timer
+            })
+            if (!isInList) {
+                newTimers.push({ resourceId, resourceType, resourceName: currentTimer.resourceName, previousDuration: duration, start: null, description: '' })
+            }
+            return {
+                currentTimer: null,
+                timers: newTimers
+            }
+        }),
+        setTimerDescription: (resourceId, resourceType, description) => set((state) => {
+            const newTimers = state.timers.map((timer) => {
+                if (timer.resourceId === resourceId && timer.resourceType === resourceType) {
+                    return {
+                        ...timer,
+                        description
+                    }
+                }
+                return timer
+            })
+            return {
+                timers: newTimers
+            }
         }),
         checkAndSetAuth: async () => {
             try {
@@ -132,26 +175,24 @@ export const useMainStore = create<MainState>()(
             }
         },
         setUserInfo: (userInfo) => set({ userInfo }),
-        addDuration: (taskId, duration) => set((state) => ({
-            durationPerTask: state.durationPerTask.map((taskDuration) => 
-                taskDuration.taskId === taskId
-                  ? { ...taskDuration, duration: taskDuration.duration + duration }
-                  : taskDuration
-            )
-        })),
-        roundDuration: (taskId) => set((state) => {
-            const newDurationPerTask = state.durationPerTask.map((taskDuration) => {
-                if (taskDuration.taskId === taskId) {
+        addDuration: (resourceId, resourceType, duration) => set((state) => {
+            const newTimers = state.timers.map((timer) => {
+                if (timer.resourceId === resourceId && timer.resourceType === resourceType) {
+                    const currentDuration = timer.previousDuration;
+                    const remainder = currentDuration % duration;
+                    const newDuration = remainder === 0
+                        ? currentDuration + duration
+                        : roundDuration(currentDuration, duration);
                     return {
-                        taskId,
-                        duration: Math.ceil(taskDuration.duration / 15) * 15
-                    }
+                        ...timer,
+                        previousDuration: newDuration
+                    };
                 }
-                return taskDuration
-            })
+                return timer;
+            });
             return {
-                durationPerTask: newDurationPerTask
-            }
+                timers: newTimers
+            };
         }),
         fetchTimesheets: async (taskId) => {
             try {
@@ -161,6 +202,8 @@ export const useMainStore = create<MainState>()(
                 console.warn(error)
                 return []
             }
-        }
+        },
+        addFavorite: (favorite) => set((state) => ({ favorites: [...state.favorites, favorite] })),
+        removeFavorite: (id) => set((state) => ({ favorites: state.favorites.filter((favorite) => favorite.id !== id) })),
     })
 )
