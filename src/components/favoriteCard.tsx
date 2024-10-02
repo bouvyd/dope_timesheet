@@ -14,7 +14,10 @@ export const FavoriteCard: React.FC<FavoriteProps> = ({ favorite, editionMode = 
     const { removeFavorite, startTimer } = useMainStore()
 
     return (
-        <div
+        <motion.div
+            initial={ false }
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0, x: "100%" }}
             className="bg-white shadow-md flex flex-row rounded hover:shadow-lg transition-shadow cursor-default w-full"
         >
             <div className="flex flex-col truncate flex-grow p-2 truncate">
@@ -62,6 +65,6 @@ export const FavoriteCard: React.FC<FavoriteProps> = ({ favorite, editionMode = 
                     </motion.div>
                 )}
             </AnimatePresence>
-        </div>
+        </motion.div>
     )
 }

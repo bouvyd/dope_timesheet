@@ -9,6 +9,8 @@ import { formatDuration } from "../utils/format";
 import { findRunningTimer, roundDuration } from "../utils/utils";
 import { TimerCard } from "../components/timerCard";
 import { motion } from "framer-motion";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 
 export const Timers = () => {
     const { timers, fetchTasks, favorites, submitTimers } = useMainStore()
@@ -41,7 +43,7 @@ export const Timers = () => {
 
     return (
         <motion.div
-            initial={{ opacity:0 }}
+            initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             key="page-timers"
@@ -57,16 +59,6 @@ export const Timers = () => {
                         >
                             <span className="text-2xl pt-2 leading-1 font-semibold highlight-marker active before:bg-green-200">Current Timers</span>
                             <span className="text-2xl pt-2 leading-1 font-semibold">{formatDuration(totalTime())}</span>
-                        </motion.div>
-                )}
-                {timers.length > 0 && (
-                        <motion.div 
-                            key="submit-timers"
-                            initial={ false }
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                        >
-                            <button className="text-xs text-gray-500 hover:text-green-500 rounded w-full p-2" onClick={() => submitAllTimers()}>Submit Timers</button>
                         </motion.div>
                 )}
                 {timers.length === 0 && !hasSubmitted && (
@@ -95,6 +87,16 @@ export const Timers = () => {
                         <p className="text-gray-500 self-start mt-3">Go to the tasks page to start a new timer, or pick a favorite below.</p>
                     </motion.div>
                 )}
+                {timers.length > 0 && (
+                        <motion.div 
+                            key="submit-timers"
+                            initial={ false }
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                        >
+                            <button className="bg-green-500 hover:bg-green-700 text-white rounded w-full p-2" onClick={() => submitAllTimers()} disabled={isSubmitting}>{isSubmitting ? <FontAwesomeIcon icon={faSpinner} spin /> : "Submit Timers"}</button>
+                        </motion.div>
+                )}
             </AnimatePresence>
             <motion.div className="flex flex-col gap-2" layout>
                 <AnimatePresence>
@@ -108,14 +110,16 @@ export const Timers = () => {
                     ))}
                 </AnimatePresence>
             </motion.div>
-            <div className="flex flex-col gap-2 mt-5">
+            <div className="flex flex-col gap-2 mt-5 overflow-x-clip">
                 <div className="cursor-default flex flex-row justify-between items-baseline">
                     <span className="text-2xl pt-2 leading-1 font-semibold highlight-marker active before:bg-yellow-200">Favorites</span>
                     <button className={`text-xs text-gray-500 hover:${editionMode ? "text-green-500" : "text-yellow-800"} rounded`} onClick={() => setEditionMode(!editionMode)}>{editionMode ? "✓ Done" : "Manage"}</button>
                 </div>
-                {favorites?.map(favorite => (
-                    <FavoriteCard key={`${favorite.type}-${favorite.id}`} favorite={favorite} editionMode={editionMode} />
-                ))}
+                <AnimatePresence>
+                    {favorites?.map(favorite => (
+                        <FavoriteCard key={`${favorite.type}-${favorite.id}`} favorite={favorite} editionMode={editionMode} />
+                    ))}
+                </AnimatePresence>
             </div>
         </motion.div>
     )
