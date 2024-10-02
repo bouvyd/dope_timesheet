@@ -4,6 +4,8 @@ import { useMainStore } from '../store/main'
 import { motion } from 'framer-motion'
 import { getTimerFullDuration } from '../utils/utils'
 import { formatDuration } from '../utils/format'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPlay, faStop } from '@fortawesome/free-solid-svg-icons'
 
 interface TimerCardProps {
     timer: Timer
@@ -15,6 +17,7 @@ export const TimerCard: React.FC<TimerCardProps> = ({ timer, isCurrentTimer, lay
     const { addDuration, setTimerDescription, startTimer, stopTimer } = useMainStore()
 
     const [description, setDescription] = useState(timer.description)
+    const [isButtonHovered, setIsButtonHovered] = useState(false)
 
     const handleDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setDescription(e.target.value)
@@ -33,7 +36,7 @@ export const TimerCard: React.FC<TimerCardProps> = ({ timer, isCurrentTimer, lay
         <motion.div
             className="bg-white shadow hover:shadow-lg rounded overflow-hidden transition-shadow"
             layout={layout}
-            initial={{ opacity: 0, height: 0 }}
+            initial={false}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
         >
@@ -54,9 +57,11 @@ export const TimerCard: React.FC<TimerCardProps> = ({ timer, isCurrentTimer, lay
                     <button className="bg-green-100 hover:bg-green-200 px-2 cursor-pointer flex-grow" onClick={() => addDuration(timer.resourceId, timer.resourceType, 15)}>+15'</button>
                     <button className="bg-green-100 hover:bg-green-200 px-2 cursor-pointer flex-grow" onClick={() => addDuration(timer.resourceId, timer.resourceType, 60)}>+1h</button>
                 </div>
-                <div onClick={handleTimerClick} className={`${isCurrentTimer ? "bg-green-200 hover:bg-yellow-100" : "bg-blue-100 hover:bg-green-200"} rounded-r font-bold p-2 aspect-square w-1/5 flex-shrink-0 flex flex-col items-center justify-center cursor-pointer`} >
+                <div onClick={handleTimerClick} onMouseEnter={() => setIsButtonHovered(true)} onMouseLeave={() => setIsButtonHovered(false)} className={`${isCurrentTimer ? "bg-green-200 hover:bg-yellow-100" : "bg-blue-100 hover:bg-green-200"} rounded-r font-bold p-2 aspect-square w-1/5 flex-shrink-0 flex flex-col items-center justify-center cursor-pointer`} >
                     {
-                        isCurrentTimer ? '▶' : '▢'
+                        isCurrentTimer ?
+                            isButtonHovered ? <FontAwesomeIcon icon={faStop} /> : <FontAwesomeIcon icon={faPlay} /> :
+                            isButtonHovered ? <FontAwesomeIcon icon={faPlay} /> : <FontAwesomeIcon icon={faStop} />
                     }
                     <span>{formatDuration(getTimerFullDuration(timer))}</span>
                 </div>

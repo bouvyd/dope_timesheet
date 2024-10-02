@@ -4,7 +4,7 @@ import readSpecs from './readSpecs.json'
 
 
 class OdooAPI {
-    private static _baseUrl = 'https://www.odoo.com';
+    private static _baseUrl = 'https://www.test.odoo.com';
     private _uid: number;
 
     constructor(uid: number) {

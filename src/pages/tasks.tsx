@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import TaskCard from "../components/taskCard"
 import { useMainStore } from "../store/main"
 import { Task, M2OTuple } from "../global/types"
-import { AnimatePresence } from "framer-motion"
+import { AnimatePresence, motion } from "framer-motion"
 
 
 export const Tasks: React.FC = () => {
@@ -43,47 +43,55 @@ export const Tasks: React.FC = () => {
 
 
     return (
-        <div>
-            <input
-                type="text"
-                placeholder="Search tasks"
-                autoFocus
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value || "")}
-                className="border border-purple-200 rounded w-full px-2 py-1 mb-3 focus:outline-none focus:ring focus:ring-purple-200 focus:shadow-inner"
-            />
-            <div className="flex flex-col gap-6">
-                <div className="flex flex-col gap-2">
-                    <div className="cursor-default">
-                        <span className="text-2xl pt-2 leading-1 font-semibold highlight-marker active before:bg-yellow-200">As assignee</span>
-                        {numAssignedTasks > 0 && <span className="pl-2 text-gray-400 text-lg">{numAssignedTasks}</span>}
+        <AnimatePresence>
+            <motion.div
+                initial={{ opacity:0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                key="page-tasks"
+            >
+                <input
+                    type="text"
+                    placeholder="Search tasks"
+                    autoFocus
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value || "")}
+                    className="border border-purple-200 rounded w-full px-2 py-1 mb-3 focus:outline-none focus:ring focus:ring-purple-200 focus:shadow-inner"
+                />
+                <div className="flex flex-col gap-6">
+                    <div className="flex flex-col gap-2">
+                        <div className="cursor-default">
+                            <span className="text-2xl pt-2 leading-1 font-semibold highlight-marker active before:bg-yellow-200">As assignee</span>
+                            {numAssignedTasks > 0 && <span className="pl-2 text-gray-400 text-lg">{numAssignedTasks}</span>}
+                        </div>
+                        <AnimatePresence>
+                            {numAssignedTasks === 0 && <div key="assigned-empty" className="text-gray-400 cursor-default">No tasks found.</div>}
+                            {assignedTasks?.map((task) => (<TaskCard key={`assigned-${task.id}`} task={task} />))}
+                        </AnimatePresence>
                     </div>
-                    <AnimatePresence>
-                        {numAssignedTasks === 0 && <div key="assigned-empty" className="text-gray-400 cursor-default">No tasks found.</div>}
-                        {assignedTasks?.map((task) => (<TaskCard key={`assigned-${task.id}`} task={task} />))}
-                    </AnimatePresence>
-                </div>
-                <div className="flex flex-col gap-2">
-                    <div className="cursor-default">
-                        <span className="text-2xl pt-2 leading-1 font-semibold highlight-marker active before:bg-blue-200">As reviewer</span>
-                        {numReviewedTasks > 0 && <span className="pl-2 text-gray-400 text-lg">{numReviewedTasks}</span>}
+                    <div className="flex flex-col gap-2">
+                        <div className="cursor-default">
+                            <span className="text-2xl pt-2 leading-1 font-semibold highlight-marker active before:bg-blue-200">As reviewer</span>
+                            {numReviewedTasks > 0 && <span className="pl-2 text-gray-400 text-lg">{numReviewedTasks}</span>}
+                        </div>
+                        <AnimatePresence>
+                            {numReviewedTasks === 0 && <div key="reviewed-empty" className="text-gray-400 cursor-default">No tasks found.</div>}
+                            {reviewedTasks?.map((task) => (<TaskCard key={`reviewed-${task.id}`} task={task} />))}
+                        </AnimatePresence>
                     </div>
-                    <AnimatePresence>
-                        {numReviewedTasks === 0 && <div key="reviewed-empty" className="text-gray-400 cursor-default">No tasks found.</div>}
-                        {reviewedTasks?.map((task) => (<TaskCard key={`reviewed-${task.id}`} task={task} />))}
-                    </AnimatePresence>
-                </div>
-                <div className="flex flex-col gap-2">
-                    <div className="cursor-default">
-                        <span className="text-2xl pt-2 leading-1 font-semibold highlight-marker active before:bg-green-200">As task owner</span>
-                        {numOwnedTasks > 0 && <span className="pl-2 text-gray-400 text-lg">{numOwnedTasks}</span>}
+                    <div className="flex flex-col gap-2">
+                        <div className="cursor-default">
+                            <span className="text-2xl pt-2 leading-1 font-semibold highlight-marker active before:bg-green-200">As task owner</span>
+                            {numOwnedTasks > 0 && <span className="pl-2 text-gray-400 text-lg">{numOwnedTasks}</span>}
+                        </div>
+                        <AnimatePresence>
+                            {numOwnedTasks === 0 && <div key="owned-empty" className="text-gray-400 cursor-default">No tasks found.</div>}
+                            {ownedTasks?.map((task) => (<TaskCard key={`owned-${task.id}`} task={task} />))}
+                        </AnimatePresence>
                     </div>
-                    <AnimatePresence>
-                        {numOwnedTasks === 0 && <div key="owned-empty" className="text-gray-400 cursor-default">No tasks found.</div>}
-                        {ownedTasks?.map((task) => (<TaskCard key={`owned-${task.id}`} task={task} />))}
-                    </AnimatePresence>
                 </div>
-            </div>
-        </div>
+            </motion.div>
+
+        </AnimatePresence>
     )
 }

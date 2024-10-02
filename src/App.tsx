@@ -1,5 +1,4 @@
-import React from 'react'
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { useMainStore } from './store/main'
 import './index.css'
 import { Tasks } from './pages/tasks'
@@ -18,8 +17,8 @@ function App() {
             {isAuthenticated ? (
                 <div className="flex flex-col h-full">
                     <div className="flex-grow p-4 overflow-y-auto">
-                        {currentView === 'tasks' && <Tasks />}
-                        {currentView === 'timers' && <Timers />}
+                            {currentView === 'tasks' && <Tasks />}
+                            {currentView === 'timers' && <Timers />}
                     </div>
                 </div>
             ) : (
@@ -32,7 +31,7 @@ function App() {
                         <p>Dear <span className="text-red font-semibold">user</span>,</p>
                         <p>Please log in to Odoo to use this extension.</p>
                     </div>
-                    <a className="bg-purple text-white px-2 py-1 rounded-sm mt-4" href="https://www.odoo.com/web/login" target="_blank" rel="noopener noreferrer">Log in</a>
+                    <a className="bg-purple text-white px-2 py-1 rounded-sm mt-4" href="https://www.test.odoo.com/web/login" target="_blank" rel="noopener noreferrer">Log in</a>
                     <button className="bg-green text-white px-2 py-1 rounded-sm mt-2" onClick={checkAndSetAuth}>Check again</button>
                 </div>
             )}

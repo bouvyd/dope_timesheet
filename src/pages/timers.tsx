@@ -29,25 +29,30 @@ export const Timers = () => {
 
 
     return (
-        <div>
+        <motion.div
+            initial={{ opacity:0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            key="page-timers"
+        >
             <AnimatePresence>
                 {timers.length > 0 && (
                     <motion.div
                         className="cursor-default flex flex-row justify-between items-baseline mb-3"
                         key="total-time"
-                        initial={{ height: 0, opacity:0 }}
+                        initial={ false }
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
                     >
-                        <span className="text-2xl pt-2 leading-1 font-semibold highlight-marker active before:bg-green-200">Hours today</span>
-                        <span className="text-2xl pt-2 leading-1 font-semibold highlight-marker active before:bg-green-200">{formatDuration(totalTime())}</span>
+                        <span className="text-2xl pt-2 leading-1 font-semibold highlight-marker active before:bg-green-200">Current Timers</span>
+                        <span className="text-2xl pt-2 leading-1 font-semibold">{formatDuration(totalTime())}</span>
                     </motion.div>
                 )}
                 {timers.length === 0 && (
                     <motion.div
                         className="flex flex-col items-center justify-center opacity-50 cursor-default"
                         key="empty-timers"
-                        initial={{ height: 0, opacity:0 }}
+                        initial={ false }
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
                     >
@@ -78,6 +83,6 @@ export const Timers = () => {
                     <FavoriteCard key={`${favorite.type}-${favorite.id}`} favorite={favorite} editionMode={editionMode} />
                 ))}
             </div>
-        </div>
+        </motion.div>
     )
 }

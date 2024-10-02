@@ -10,7 +10,7 @@
         "storage"
     ],
     "host_permissions": [
-        "https://www.odoo.com"
+        "https://www.test.odoo.com"
     ],
     "icons": {
         "16": "icons/icon16.png",

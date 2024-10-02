@@ -9,7 +9,7 @@ const UserMenu: React.FC = () => {
             <span className="font-semibold text-purple">{userInfo.username}</span>
             <a 
                 className="bg-red text-white px-2 py-1 rounded-sm" 
-                href="https://www.odoo.com/web/session/logout" 
+                href="https://www.test.odoo.com/web/session/logout" 
                 target="_blank" 
                 rel="noopener noreferrer"
             >
