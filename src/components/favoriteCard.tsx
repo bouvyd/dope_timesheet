@@ -2,6 +2,8 @@ import React from 'react'
 import { useMainStore } from '../store/main'
 import { Favorite } from '../global/types'
 import { AnimatePresence, motion } from 'framer-motion'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faTrash } from '@fortawesome/free-solid-svg-icons'
 
 interface FavoriteProps {
     favorite: Favorite
@@ -24,6 +26,28 @@ export const FavoriteCard: React.FC<FavoriteProps> = ({ favorite, editionMode = 
                 <span className="text-gray-500 text-xs font-normal capitalize">{favorite.type} <span className="text-gray-300">#{favorite.id}</span></span>
             </div>
             <AnimatePresence>
+                {!editionMode && (
+                    <motion.div
+                        className="aspect-square w-1/5 flex-shrink-0 flex items-center justify-center cursor-pointer"
+                        key={`add15-${favorite.id}`}
+                        initial={ false }
+                        animate={{ opacity: 1, width: "20%" }}
+                        exit={{ opacity: 0, width: 0 }}
+                    >
+                        <button className="bg-green-300 aspect-square text-white p-2 w-full h-full" onClick={() => startTimer(favorite.id, favorite.type, favorite.name, 15)}>+ 15'</button>
+                    </motion.div>
+                )}
+                {!editionMode && (
+                    <motion.div
+                        className="aspect-square w-1/5 flex-shrink-0 flex items-center justify-center cursor-pointer"
+                        key={`add60-${favorite.id}`}
+                        initial={ false }
+                        animate={{ opacity: 1, width: "20%" }}
+                        exit={{ opacity: 0, width: 0 }}
+                    >
+                        <button className="bg-green-500 rounded-r aspect-square text-white p-2 w-full h-full" onClick={() => startTimer(favorite.id, favorite.type, favorite.name, 60)}>+ 1h</button>
+                    </motion.div>
+                )}
                 {editionMode && (
                     <motion.div
                         className="aspect-square w-1/5 flex-shrink-0 flex items-center justify-center cursor-pointer"
@@ -32,30 +56,10 @@ export const FavoriteCard: React.FC<FavoriteProps> = ({ favorite, editionMode = 
                         animate={{ opacity: 1, width: "20%" }}
                         exit={{ opacity: 0, width: 0 }}
                     >
-                        <button className="bg-red-500 rounded-r aspect-square text-white p-2 w-full h-full" onClick={() => removeFavorite(favorite.id)}>Remove</button>
+                        <button className="bg-red-500 rounded-r aspect-square text-white p-2 w-full h-full" onClick={() => removeFavorite(favorite.id)}>
+                            <FontAwesomeIcon icon={faTrash} />
+                        </button>
                     </motion.div>
-                )}
-                {!editionMode && (
-                    <>
-                        <motion.div
-                            className="aspect-square w-1/5 flex-shrink-0 flex items-center justify-center cursor-pointer"
-                            key={`add15-${favorite.id}`}
-                            initial={{ opacity: 0, width: 0 }}
-                            animate={{ opacity: 1, width: "20%" }}
-                            exit={{ opacity: 0, width: 0 }}
-                        >
-                            <button className="bg-green-300 aspect-square text-white p-2 w-full h-full" onClick={() => startTimer(favorite.id, favorite.type, favorite.name, 15)}>+ 15'</button>
-                        </motion.div>
-                        <motion.div
-                            className="aspect-square w-1/5 flex-shrink-0 flex items-center justify-center cursor-pointer"
-                            key={`add60-${favorite.id}`}
-                            initial={{ opacity: 0, width: 0 }}
-                            animate={{ opacity: 1, width: "20%" }}
-                            exit={{ opacity: 0, width: 0 }}
-                        >
-                            <button className="bg-green-500 rounded-r aspect-square text-white p-2 w-full h-full" onClick={() => startTimer(favorite.id, favorite.type, favorite.name, 60)}>+ 1h</button>
-                        </motion.div>
-                    </>
                 )}
             </AnimatePresence>
         </div>
