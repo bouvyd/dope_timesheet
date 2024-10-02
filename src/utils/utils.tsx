@@ -10,10 +10,10 @@ export function findRunningTimer(timers: Timer[]) : Timer | undefined {
 
 export function getTimerFullDuration(timer: Timer): number {
     const previousDuration = timer.previousDuration
-    const currentDuration = timer.start ? (new Date().getTime() - timer.start.getTime()) / 60000 : 0
+    const currentDuration = timer.start ? Math.floor((new Date().getTime() - timer.start.getTime()) / 60000) : 0
     return previousDuration + currentDuration
 }
 
 export function roundDuration(duration: number, step: number) {
-    return Math.ceil(duration/step) * step
+    return Math.ceil(Math.floor(duration)/step) * step
 }

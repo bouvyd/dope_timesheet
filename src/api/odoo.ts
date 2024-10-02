@@ -1,4 +1,4 @@
-import { Domain, Task, User, Timesheet, M2OTuple, Timer } from '../global/types'
+import { Domain, Task, User, Timesheet, M2OTuple, Timer, OdooError, OdooResponse } from '../global/types'
 import { camelCasify } from '../utils/apiUtils';
 import readSpecs from './readSpecs.json'
 
@@ -155,7 +155,7 @@ class OdooAPI {
         return timesheets;
     }
 
-    public async submitTimers(timers: Timer[]): Promise<void> {
+    private async _submitTimers(timers: Timer[]): Promise<OdooResponse> {
         // save as analytic lines (timesheet entries) on the corresponding task/project
         const res = await fetch(`${OdooAPI.baseUrl}/web/dataset/call_kw`, {
             method: 'POST',
@@ -182,10 +182,34 @@ class OdooAPI {
                 }
             })
         })
-        const jsonResponse = await res.json();
-        if (jsonResponse.error) {
-            throw new Error(jsonResponse.error.message);
+        return await res.json();
+    }
+
+    public async submitTimers(timers: Timer[]): Promise<Timer[]> {
+        // save as analytic lines (timesheet entries) on the corresponding task/project
+        const res = await this._submitTimers(timers);
+        if (res.error) {
+            if (timers.length === 1) {
+                const odooError = res.error as OdooError;
+                console.error('Failed to submit timer', timers[0], odooError);
+                timers[0].error = odooError.data.message;
+                return timers;
+            }
+            console.error('Failed to submit timers', res.error);
+            // let's retry submitting the timers one by one and return the ones that failed
+            const failedTimers = [];
+            for (const timer of timers) {
+                const res = await this._submitTimers([timer]);
+                if (res.error) {
+                    const odooError = res.error as OdooError;
+                    console.error('Failed to submit timer', timer, odooError);
+                    timer.error = odooError.data.message;
+                    failedTimers.push(timer);
+                }
+            }
+            return failedTimers;
         }
+        return [];
     }
 }
 

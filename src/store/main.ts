@@ -20,11 +20,13 @@ interface MainState {
     fetchTasks: () => Promise<void>
     startTimer: (resourceId: number, resourceType: 'task' | 'project', resourceName: string, duration: number) => void
     stopTimer: (resourceId: number, resourceType: 'task' | 'project') => void
+    deleteTimer: (resourceId: number, resourceType: 'task' | 'project') => void
     submitTimers: () => Promise<void>
     setTimerDescription: (resourceId: number, resourceType: 'task' | 'project', description: string) => void
     checkAndSetAuth: () => Promise<void>
     setUserInfo: (userInfo: User) => void
     addDuration: (resourceId: number, resourceType: 'task' | 'project', duration: number) => void
+    setDuration: (resourceId: number, resourceType: 'task' | 'project', duration: number) => void
     fetchTimesheets: (taskId: number) => Promise<Timesheet[]>
     addFavorite: (favorite: Favorite) => void
     removeFavorite: (id: number) => void
@@ -144,6 +146,12 @@ export const useMainStore = create<MainState>()(
                 timers: newTimers
             }
         }),
+        deleteTimer: (resourceId, resourceType) => set((state) => {
+            const newTimers = state.timers.filter((timer) => timer.resourceId !== resourceId || timer.resourceType !== resourceType)
+            return {
+                timers: newTimers
+            }
+        }),
         submitTimers: async () => {
             // stop the running timer and save the duration
             const currentTimer = findRunningTimer(get().timers)
@@ -160,9 +168,9 @@ export const useMainStore = create<MainState>()(
                 }
             })
             // submit to odoo
-            await odooApi.submitTimers(roundedTimers)
+            const failedTimers = await odooApi.submitTimers(roundedTimers)
             return set({
-                timers: []
+                timers: failedTimers
             })
         },
         setTimerDescription: (resourceId, resourceType, description) => set((state) => {
@@ -215,6 +223,26 @@ export const useMainStore = create<MainState>()(
             return {
                 timers: newTimers
             };
+        }),
+        setDuration: (resourceId, resourceType, duration) => set((state) => {
+            // set a specific duration for a timer
+            // if the timer is running, we need to remove the current duration from the total duration
+            const newTimers = state.timers.map((timer) => {
+                if (timer.resourceId === resourceId && timer.resourceType === resourceType) {
+                    if (timer.start) {
+                        // reset the timer to now
+                        timer.start = new Date()
+                    }
+                    return {
+                        ...timer,
+                        previousDuration: duration
+                    };
+                }
+                return timer
+            })
+            return {
+                timers: newTimers
+            }
         }),
         fetchTimesheets: async (taskId) => {
             try {

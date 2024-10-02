@@ -22,17 +22,19 @@ export const Timers = () => {
 
     const totalTime = () => {
         let total = 0;
+        let roundedTotal = 0;
         timers.map((timer) => {
-            total += roundDuration(timer.previousDuration, 15)
+            total += timer.previousDuration
+            roundedTotal += roundDuration(timer.previousDuration, 15)
         })
-        return total
+        return { total, roundedTotal }
     }
 
     const submitAllTimers = () => {
         setIsSubmitting(true)
         submitTimers().then(() => {
             setIsSubmitting(false)
-            setHasSubmitted(true)
+            setHasSubmitted(timers.length === 0)
         })
     }
 
@@ -58,7 +60,10 @@ export const Timers = () => {
                             exit={{ height: 0, opacity: 0 }}
                         >
                             <span className="text-2xl pt-2 leading-1 font-semibold highlight-marker active before:bg-green-200">Current Timers</span>
-                            <span className="text-2xl pt-2 leading-1 font-semibold">{formatDuration(totalTime())}</span>
+                            <div className="flex flex-col items-end">
+                                <span className="text-2xl pt-2 leading-1 font-semibold">{formatDuration(totalTime().total)}</span>
+                                <span className="leading-1 font-semibold text-gray-500" title="With all timers rouded">({formatDuration(totalTime().roundedTotal)})</span>
+                            </div>
                         </motion.div>
                 )}
                 {timers.length === 0 && !hasSubmitted && (
@@ -87,16 +92,6 @@ export const Timers = () => {
                         <p className="text-gray-500 self-start mt-3">Go to the tasks page to start a new timer, or pick a favorite below.</p>
                     </motion.div>
                 )}
-                {timers.length > 0 && (
-                        <motion.div 
-                            key="submit-timers"
-                            initial={ false }
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                        >
-                            <button className="bg-green-500 hover:bg-green-700 text-white rounded w-full p-2" onClick={() => submitAllTimers()} disabled={isSubmitting}>{isSubmitting ? <FontAwesomeIcon icon={faSpinner} spin /> : "Submit Timers"}</button>
-                        </motion.div>
-                )}
             </AnimatePresence>
             <motion.div className="flex flex-col gap-2" layout>
                 <AnimatePresence>
@@ -109,6 +104,16 @@ export const Timers = () => {
                         />
                     ))}
                 </AnimatePresence>
+                {timers.length > 0 && (
+                        <motion.div 
+                            key="submit-timers"
+                            initial={ false }
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                        >
+                            <button className="bg-green-500 hover:bg-green-700 text-white rounded w-full p-2 disabled:opacity-50 transition-opacity" onClick={() => submitAllTimers()} disabled={isSubmitting}>{isSubmitting && <FontAwesomeIcon icon={faSpinner} spin className="mr-2" />}Submit Timers</button>
+                        </motion.div>
+                )}
             </motion.div>
             <div className="flex flex-col gap-2 mt-5 overflow-x-clip">
                 <div className="cursor-default flex flex-row justify-between items-baseline">

@@ -49,4 +49,24 @@ export interface Timer {
     start: Date | null
     previousDuration: number
     description: string
+    error?: string
+}
+
+export interface OdooError {
+    code: number
+    message: string
+    data: {
+        arguments: string[],
+        context: object
+        debug: string
+        message: string
+        name: string
+    }
+}
+
+export interface OdooResponse {
+    jsonrpc: string
+    result: unknown
+    error: OdooError | null
+    id: number
 }
