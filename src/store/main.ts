@@ -20,6 +20,7 @@ interface MainState {
     fetchTasks: () => Promise<void>
     startTimer: (resourceId: number, resourceType: 'task' | 'project', resourceName: string, duration: number) => void
     stopTimer: (resourceId: number, resourceType: 'task' | 'project') => void
+    submitTimers: () => Promise<void>
     setTimerDescription: (resourceId: number, resourceType: 'task' | 'project', description: string) => void
     checkAndSetAuth: () => Promise<void>
     setUserInfo: (userInfo: User) => void
@@ -30,7 +31,7 @@ interface MainState {
 }
 
 export const useMainStore = create<MainState>()(
-    (set) => ({
+    (set, get) => ({
         isAuthenticated: false,
         currentView: 'timers',
         tasks: [],
@@ -143,6 +144,27 @@ export const useMainStore = create<MainState>()(
                 timers: newTimers
             }
         }),
+        submitTimers: async () => {
+            // stop the running timer and save the duration
+            const currentTimer = findRunningTimer(get().timers)
+            if (currentTimer && currentTimer.start) {
+                const startTime = currentTimer.start.getTime()
+                currentTimer.previousDuration += (new Date().getTime() - startTime) / 60000
+                currentTimer.start = null
+            }
+            // round all timers to the upper 15min
+            const roundedTimers = get().timers.map((timer) => {
+                return {
+                    ...timer,
+                    previousDuration: roundDuration(timer.previousDuration, 15)
+                }
+            })
+            // submit to odoo
+            await odooApi.submitTimers(roundedTimers)
+            return set({
+                timers: []
+            })
+        },
         setTimerDescription: (resourceId, resourceType, description) => set((state) => {
             const newTimers = state.timers.map((timer) => {
                 if (timer.resourceId === resourceId && timer.resourceType === resourceType) {
@@ -207,3 +229,5 @@ export const useMainStore = create<MainState>()(
         removeFavorite: (id) => set((state) => ({ favorites: state.favorites.filter((favorite) => favorite.id !== id) })),
     })
 )
+
+

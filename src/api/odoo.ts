@@ -1,4 +1,4 @@
-import { Domain, Task, User, Timesheet, M2OTuple } from '../global/types'
+import { Domain, Task, User, Timesheet, M2OTuple, Timer } from '../global/types'
 import { camelCasify } from '../utils/apiUtils';
 import readSpecs from './readSpecs.json'
 
@@ -153,6 +153,39 @@ class OdooAPI {
             })
         }
         return timesheets;
+    }
+
+    public async submitTimers(timers: Timer[]): Promise<void> {
+        // save as analytic lines (timesheet entries) on the corresponding task/project
+        const res = await fetch(`${OdooAPI.baseUrl}/web/dataset/call_kw`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                id: 1,
+                jsonrpc: '2.0',
+                method: 'call_kw',
+                params: {
+                    model: 'account.analytic.line',
+                    method: 'create',
+                    args: [timers.map(timer => ({
+                            task_id: timer.resourceType === 'task' ? timer.resourceId : null,
+                            project_id: timer.resourceType === 'project' ? timer.resourceId : null,
+                            name: timer.description,
+                            // convert duration to hours
+                            unit_amount: timer.previousDuration / 60,
+                            user_id: this.uid
+                        }))
+                    ],
+                    kwargs: {}
+                }
+            })
+        })
+        const jsonResponse = await res.json();
+        if (jsonResponse.error) {
+            throw new Error(jsonResponse.error.message);
+        }
     }
 }
 
