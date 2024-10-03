@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { useMainStore } from './store/main'
 import './index.css'
 import { Tasks } from './pages/tasks'
@@ -12,6 +12,7 @@ function App() {
     const { currentView } = useMainStore()
     const [isAuthenticated, setIsAuthenticated] = useState(false)
     const [shouldCheckAuth, setShouldCheckAuth] = useState(true)
+    const contentRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         const initializeStore = async () => {
@@ -72,11 +73,17 @@ function App() {
         console.log(currentView)
     }, [shouldCheckAuth])
 
+    useEffect(() => {
+        if (contentRef.current) {
+            contentRef.current.scrollTop = 0
+        }
+    }, [currentView])
+
     return (
         <Layout showHeader={isAuthenticated}>
             {isAuthenticated ? (
                 <div className="flex flex-col h-full">
-                    <div className="flex-grow p-4 overflow-y-auto">
+                    <div ref={contentRef} className="flex-grow p-4 overflow-y-auto">
                         {currentView === 'tasks' && <Tasks />}
                         {currentView === 'timers' && <Timers />}
                     </div>
