@@ -6,25 +6,27 @@ import { Timers } from './pages/timers'
 import Layout from './components/layout'
 import { Timer } from './global/types'
 import odooApi from './api/odoo'
+import { motion, AnimatePresence } from 'framer-motion'
 
 
 function App() {
     const { currentView } = useMainStore()
     const [isAuthenticated, setIsAuthenticated] = useState(false)
     const [shouldCheckAuth, setShouldCheckAuth] = useState(true)
+    const [showLoginInfo, setShowLoginInfo] = useState(false)
     const contentRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         const initializeStore = async () => {
             // Check authentication status
             let userInfo
-            let isAuthenticated
+            let isUserAuthenticated
             try {
                 userInfo = await odooApi.getUserInfo()
                 odooApi.uid = userInfo.id
-                isAuthenticated = true
+                isUserAuthenticated = true
             } catch (error) {
-                isAuthenticated = false
+                isUserAuthenticated = false
                 userInfo = {
                     id: 0,
                     name: '',
@@ -69,8 +71,10 @@ function App() {
             // Cleanup subscription on unmount
             return () => unsubscribe()
         }
-        initializeStore()
-        console.log(currentView)
+        if (shouldCheckAuth) {
+            setShouldCheckAuth(false)
+            initializeStore()
+        }
     }, [shouldCheckAuth])
 
     useEffect(() => {
@@ -78,6 +82,13 @@ function App() {
             contentRef.current.scrollTop = 0
         }
     }, [currentView])
+
+    useEffect(() => {
+        // show buttons after 3 seconds, time to check if the user is authenticated
+        setTimeout(() => {
+            setShowLoginInfo(true)
+        }, 3000)
+    }, [])
 
     return (
         <Layout showHeader={isAuthenticated}>
@@ -94,24 +105,37 @@ function App() {
                         <span className="font-caveat font-bold text-green text-3xl">Dope</span>
                         <span className="text-3xl text-purple">Timesheets</span>
                     </div>
-                    <div>
-                        <p>Dear <span className="text-red font-semibold">False</span>,</p>
-                        <p>Please log in to Odoo to use this extension.</p>
-                    </div>
-                    <a
-                        className="bg-purple text-white px-2 py-1 rounded-sm mt-4"
-                        href="https://www.test.odoo.com/web/login"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        Log in
-                    </a>
-                    <button
-                        className="bg-green text-white px-2 py-1 rounded-sm mt-2"
-                        onClick={() => setShouldCheckAuth(true)}
-                    >
-                        Check again
-                    </button>
+                    <AnimatePresence>
+                        {showLoginInfo && (
+                            <motion.div
+                                initial={{ opacity: 0, y: -20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: 20 }}
+                                className="mt-4"
+                            >
+                                <div>
+                                    <p>Dear <span className="text-red font-semibold">False</span>,</p>
+                                    <p>Please log in to Odoo to use this extension.</p>
+                                </div>
+                                <div className="flex flex-row gap-2 mt-4">
+                                    <a
+                                        className="bg-purple text-white text-center rounded p-1 flex-grow"
+                                        href="https://www.test.odoo.com/web/login"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        Log in
+                                    </a>
+                                    <button
+                                        className="bg-green text-white text-center rounded p-1 flex-grow"
+                                        onClick={() => setShouldCheckAuth(true)}
+                                    >
+                                        Check again
+                                    </button>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
             )}
         </Layout>
