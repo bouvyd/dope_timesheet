@@ -4,14 +4,14 @@ import { useMainStore } from '../store/main';
 
 interface LayoutProps {
   children: React.ReactNode;
+  showHeader: boolean;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const { isAuthenticated } = useMainStore();
+const Layout: React.FC<LayoutProps> = ({ children, showHeader }) => {
 
   return (
     <div className="flex flex-col h-screen">
-      {isAuthenticated && (
+      {showHeader && (
         <header className="flex-shrink-0">
           <NavigationBar />
         </header>

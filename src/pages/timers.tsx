@@ -133,6 +133,16 @@ export const Timers = () => {
                     {favorites?.map(favorite => (
                         <FavoriteCard key={`${favorite.type}-${favorite.id}`} favorite={favorite} editionMode={editionMode} />
                     ))}
+                    {favorites.length === 0 && (
+                        <motion.div
+                            key="no-favorites"
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                        >
+                            <p className="text-gray-500">Add your favorite tasks or projects to easily start a timer.</p>
+                        </motion.div>
+                    )}
                 </AnimatePresence>
             </motion.div>
         </motion.div>

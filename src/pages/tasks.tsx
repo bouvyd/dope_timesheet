@@ -13,7 +13,7 @@ export const Tasks: React.FC = () => {
 
     useEffect(() => {
         fetchTasks()
-    }, [fetchTasks])
+    }, [])
 
     useEffect(() => {
         const handler = setTimeout(() => {

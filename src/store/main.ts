@@ -6,13 +6,11 @@ import { findRunningTimer, findResourceTimer, roundDuration } from '../utils/uti
 
 
 interface MainState {
-    isAuthenticated: boolean
     currentView: 'tasks' | 'timers'
     tasks: Task[]
     favorites: Favorite[]
     timers: Timer[]
     userInfo: User
-    setIsAuthenticated: (value: boolean) => void
     setCurrentView: (view: 'tasks' | 'timers') => void
     addTask: (task: Task) => void
     updateTask: (id: number, updates: Partial<Task>) => void
@@ -23,13 +21,11 @@ interface MainState {
     deleteTimer: (resourceId: number, resourceType: 'task' | 'project') => void
     submitTimers: () => Promise<void>
     setTimerDescription: (resourceId: number, resourceType: 'task' | 'project', description: string) => void
-    checkAndSetAuth: () => Promise<void>
-    setUserInfo: (userInfo: User) => void
     addDuration: (resourceId: number, resourceType: 'task' | 'project', duration: number) => void
     setDuration: (resourceId: number, resourceType: 'task' | 'project', duration: number) => void
     fetchTimesheets: (taskId: number) => Promise<Timesheet[]>
     addFavorite: (favorite: Favorite) => void
-    removeFavorite: (id: number, type: 'task' | 'project') => void
+    removeFavorite: (favorite: Favorite) => void
 }
 
 export const useMainStore = create<MainState>()(
@@ -37,15 +33,48 @@ export const useMainStore = create<MainState>()(
         isAuthenticated: false,
         currentView: 'timers',
         tasks: [],
-        favorites: [{
-            name: 'Dope Timesheets',
-            type: 'project',
-            id: 1,
-        }, {
-            name: 'Dope Task',
-            type: 'task',
-            id: 2,
-        }],
+        favorites: [
+            {
+                id: 12331,
+                name: '(BS) COACHING',
+                type: 'project',
+            },
+            {
+                id: 12332,
+                name: '(BS) IMPROVEMENTS',
+                type: 'project',
+            },
+            {
+                id: 12330,
+                name: '(BS) KNOWLEDGE',
+                type: 'project',
+            },
+            {
+                id: 12329,
+                name: '(BS) LEARNING & DEVELOPMENT',
+                type: 'project',
+            },
+            {
+                id: 12336,
+                name: '(BS) MEETING',
+                type: 'project',
+            },
+            {
+                id: 12337,
+                name: '(BS) MISC',
+                type: 'project',
+            },
+            {
+                id: 12355,
+                name: '(BS) RECRUITMENT',
+                type: 'project',
+            },
+            {
+                id: 12335,
+                name: '(BS) SELF-TRAINING',
+                type: 'project',
+            },
+        ],
         timers: [],
         userInfo: {
             id: 0,
@@ -53,7 +82,6 @@ export const useMainStore = create<MainState>()(
             username: '',
             avatarUrl: '',
         },
-        setIsAuthenticated: (value) => set({ isAuthenticated: value }),
         setCurrentView: (view) => set({ currentView: view }),
         addTask: (task) => set((state) => ({ tasks: [...state.tasks, task] })),
         updateTask: (id, updates) =>
@@ -187,24 +215,6 @@ export const useMainStore = create<MainState>()(
                 timers: newTimers
             }
         }),
-        checkAndSetAuth: async () => {
-            try {
-                const userInfo = await odooApi.getUserInfo()
-                odooApi.uid = userInfo.id
-                set({ isAuthenticated: true, userInfo })
-            } catch (error) {
-                console.warn(error)
-                set({
-                    isAuthenticated: false, userInfo: {
-                        id: 0,
-                        name: '',
-                        username: '',
-                        avatarUrl: '',
-                    }
-                })
-            }
-        },
-        setUserInfo: (userInfo) => set({ userInfo }),
         addDuration: (resourceId, resourceType, duration) => set((state) => {
             const newTimers = state.timers.map((timer) => {
                 if (timer.resourceId === resourceId && timer.resourceType === resourceType) {
@@ -254,7 +264,7 @@ export const useMainStore = create<MainState>()(
             }
         },
         addFavorite: (favorite) => set((state) => ({ favorites: [...state.favorites, favorite] })),
-        removeFavorite: (id, type) => set((state) => ({ favorites: state.favorites.filter((favorite) => favorite.id !== id || favorite.type !== type) })),
+        removeFavorite: (favorite) => set((state) => ({ favorites: state.favorites.filter((f) => f.id !== favorite.id || f.type !== favorite.type) })),
     })
 )
 

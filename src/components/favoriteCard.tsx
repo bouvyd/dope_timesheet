@@ -58,7 +58,7 @@ export const FavoriteCard: React.FC<FavoriteProps> = ({ favorite, editionMode = 
                         animate={{ opacity: 1, width: "20%" }}
                         exit={{ opacity: 0, width: 0 }}
                     >
-                        <button className="bg-red-500 rounded-r aspect-square text-white p-2 w-full h-full" onClick={() => removeFavorite(favorite.id)}>
+                        <button className="bg-red-500 rounded-r aspect-square text-white p-2 w-full h-full" onClick={() => removeFavorite(favorite)}>
                             <FontAwesomeIcon icon={faTrash} />
                         </button>
                     </motion.div>
