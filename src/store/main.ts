@@ -26,6 +26,7 @@ interface MainState {
     fetchTimesheets: (taskId: number) => Promise<Timesheet[]>
     addFavorite: (favorite: Favorite) => void
     removeFavorite: (favorite: Favorite) => void
+    setFavoriteName: (favorite: Favorite, name: string) => void
 }
 
 export const useMainStore = create<MainState>()(
@@ -265,7 +266,6 @@ export const useMainStore = create<MainState>()(
         },
         addFavorite: (favorite) => set((state) => ({ favorites: [...state.favorites, favorite] })),
         removeFavorite: (favorite) => set((state) => ({ favorites: state.favorites.filter((f) => f.id !== favorite.id || f.type !== favorite.type) })),
+        setFavoriteName: (favorite, name) => set((state) => ({ favorites: state.favorites.map((f) => f.id === favorite.id && f.type === favorite.type ? { ...f, name } : f) })),
     })
 )
-
-
