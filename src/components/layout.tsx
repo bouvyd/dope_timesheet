@@ -1,6 +1,5 @@
 import React from 'react';
 import NavigationBar from './navigationBar';
-import { useMainStore } from '../store/main';
 
 interface LayoutProps {
   children: React.ReactNode;

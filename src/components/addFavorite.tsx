@@ -79,18 +79,20 @@ const AddFavorite = () => {
     }
 
     return (
-        <>
-            <motion.button
+        <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            key="add-favorite"
+        >
+            <button
                 onClick={() => setIsOpen(true)}
                 className="bg-green-500 hover:bg-green-700 text-white rounded w-full p-2 disabled:opacity-50 transition-opacity"
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                key="add-favorite-button"
+                
             >
                 <FontAwesomeIcon icon={faPlus} className="mr-2" />
                 Add Favorite
-            </motion.button>
+            </button>
             <AnimatePresence>
                 {isOpen && (
                     <>
@@ -147,7 +149,7 @@ const AddFavorite = () => {
                     </>
                 )}
             </AnimatePresence>
-        </>
+        </motion.div>
     )
 }
 

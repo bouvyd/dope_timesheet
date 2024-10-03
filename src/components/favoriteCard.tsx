@@ -9,9 +9,10 @@ import odooApi from '../api/odoo'
 interface FavoriteProps {
     favorite: Favorite
     editionMode: boolean
+    faded?: boolean
 }
 
-export const FavoriteCard: React.FC<FavoriteProps> = ({ favorite, editionMode = false }) => {
+export const FavoriteCard: React.FC<FavoriteProps> = ({ favorite, editionMode = false, faded = false }) => {
     const { removeFavorite, startTimer, setFavoriteName } = useMainStore()
 
     const onSetName = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -30,9 +31,10 @@ export const FavoriteCard: React.FC<FavoriteProps> = ({ favorite, editionMode = 
     return (
         <motion.div
             initial={false}
-            animate={{ opacity: 1, height: "auto" }}
+            animate={{ height: "auto" }}
             exit={{ opacity: 0, height: 0, x: "100%" }}
-            className="bg-white shadow flex flex-row rounded hover:shadow-lg transition-shadow cursor-default w-full"
+            className={`bg-white shadow flex flex-row rounded hover:shadow-lg transition-shadow cursor-default w-full ${faded ? "opacity-25" : ""}`}
+            layout
         >
             <div className="flex flex-col truncate flex-grow p-2 truncate">
                 <div className="font-semibold flex flex-row gap-1 text-left text-ellipsis truncate">
