@@ -11,7 +11,7 @@ import { TimerCard } from "../components/timerCard";
 import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
-
+import AddFavorite from "../components/addFavorite";
 export const Timers = () => {
     const { timers, fetchTasks, favorites, submitTimers } = useMainStore()
     const [editionMode, setEditionMode] = useState(false)
@@ -115,17 +115,26 @@ export const Timers = () => {
                         </motion.div>
                 )}
             </motion.div>
-            <div className="flex flex-col gap-2 mt-5 overflow-x-clip">
+            <motion.div
+                className="flex flex-col gap-2 mt-5 overflow-x-clip"
+                initial={ false }
+                animate={{ height: "auto" }}
+            >
                 <div className="cursor-default flex flex-row justify-between items-baseline">
                     <span className="text-2xl pt-2 leading-1 font-semibold highlight-marker active before:bg-yellow-200">Favorites</span>
                     <button className={`text-xs text-gray-500 hover:${editionMode ? "text-green-500" : "text-yellow-800"} rounded`} onClick={() => setEditionMode(!editionMode)}>{editionMode ? "✓ Done" : "Manage"}</button>
                 </div>
+                {editionMode && (
+                    <AnimatePresence>
+                        <AddFavorite />
+                    </AnimatePresence>
+                )}
                 <AnimatePresence>
                     {favorites?.map(favorite => (
                         <FavoriteCard key={`${favorite.type}-${favorite.id}`} favorite={favorite} editionMode={editionMode} />
                     ))}
                 </AnimatePresence>
-            </div>
+            </motion.div>
         </motion.div>
     )
 }

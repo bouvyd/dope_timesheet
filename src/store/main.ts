@@ -29,7 +29,7 @@ interface MainState {
     setDuration: (resourceId: number, resourceType: 'task' | 'project', duration: number) => void
     fetchTimesheets: (taskId: number) => Promise<Timesheet[]>
     addFavorite: (favorite: Favorite) => void
-    removeFavorite: (id: number) => void
+    removeFavorite: (id: number, type: 'task' | 'project') => void
 }
 
 export const useMainStore = create<MainState>()(
@@ -254,7 +254,7 @@ export const useMainStore = create<MainState>()(
             }
         },
         addFavorite: (favorite) => set((state) => ({ favorites: [...state.favorites, favorite] })),
-        removeFavorite: (id) => set((state) => ({ favorites: state.favorites.filter((favorite) => favorite.id !== id) })),
+        removeFavorite: (id, type) => set((state) => ({ favorites: state.favorites.filter((favorite) => favorite.id !== id || favorite.type !== type) })),
     })
 )
 

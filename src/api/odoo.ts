@@ -211,6 +211,31 @@ class OdooAPI {
         }
         return [];
     }
+
+    public async getFavoriteInfo(id: number, type: 'task' | 'project'): Promise<M2OTuple | null> {
+        const res = await fetch(`${OdooAPI.baseUrl}/web/dataset/call_kw`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                id: 1,
+                jsonrpc: '2.0',
+                method: 'call_kw',
+                params: {
+                    model: type === 'task' ? 'project.task' : 'project.project',
+                    method: 'read',
+                    args: [[id], ["id", "display_name"]],
+                    kwargs: {}
+                }
+            })
+        })
+        const jsonResponse = await res.json();
+        if (jsonResponse.result.length === 0) {
+            return null;
+        }
+        return camelCasify(jsonResponse.result[0]) as unknown as M2OTuple;
+    }
 }
 
 export { OdooAPI };
