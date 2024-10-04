@@ -73,7 +73,9 @@ function App() {
         }
         if (shouldCheckAuth) {
             setShouldCheckAuth(false)
-            initializeStore()
+            setTimeout(() => {
+                initializeStore()
+            }, 200)
         }
     }, [shouldCheckAuth])
 
