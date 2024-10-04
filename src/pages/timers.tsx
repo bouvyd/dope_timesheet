@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useMainStore } from "../store/main"
 import Lottie from "lottie-react";
-import empty from "../assets/animations/empty.json";
+import blob from "../assets/animations/blob.json";
 import success from "../assets/animations/success.json";
 import { FavoriteCard } from "../components/favoriteCard";
 import { AnimatePresence } from "framer-motion";
@@ -97,7 +97,7 @@ export const Timers = () => {
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
                     >
-                        <Lottie animationData={empty} loop={true} className="w-1/2 my-4" />
+                        <Lottie animationData={blob} loop={true} className="w-1/2 my-4" />
                         <p className="text-gray-500">No running timers</p>
                         <p className="text-gray-500 self-start mt-3">Go to the tasks page to start a timer, or pick a favorite below.</p>
                     </motion.div>

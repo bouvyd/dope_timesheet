@@ -13,15 +13,13 @@
 }
 
 html {
-  min-width: 300px;
-  min-height: 500px;
   font-family: 'Inter', 'Roboto', 'Segoe UI', 'Arial', 'Helvetica', sans-serif;
   color: #374151;
 }
 
 body, #root {
-  width: 100vw;
-  height: 100vh;
+  width: 320px;
+  height: 600px;
   margin: 0;
   padding: 0;
 }
