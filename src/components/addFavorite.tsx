@@ -1,104 +1,44 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useMainStore } from "../store/main";
 import { AnimatePresence, motion } from "framer-motion";
-import odooApi from "../api/odoo";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner, faPlus, faX } from "@fortawesome/free-solid-svg-icons";
+import useRemoteResource from "../hooks/remoteResource";
 
 const AddFavorite = () => {
     const { addFavorite } = useMainStore()
 
     const [isOpen, setIsOpen] = useState(false)
-    const [isLoading, setIsLoading] = useState(false)
-    const [isFavoriteValid, setIsFavoriteValid] = useState(false)
-    const [name, setName] = useState("")
     const [type, setType] = useState<"task" | "project">("task")
     const [id, setId] = useState<number>(0)
-    const [errorMsg, setErrorMsg] = useState("")
+
+    const { isLoading, isFavoriteValid, name, errorMsg, setName } = useRemoteResource(id, type);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
 
         if (id === 0) {
-            setErrorMsg("Please enter a valid ID")
             return
         }
 
-        setIsLoading(true)
-
-        const favoriteInfo = await odooApi.getFavoriteInfo(id, type)
-        if (!favoriteInfo) {
-            setIsFavoriteValid(false)
-            setIsLoading(false)
-            setErrorMsg(`There is no ${type} with ID ${id}.`)
-            return
+        if (isFavoriteValid) {
+            addFavorite({ name, type, id })
+            setIsOpen(false)
         }
-
-        setErrorMsg("")
-        let favoriteName = name
-        if (favoriteName === "") {
-            favoriteName = favoriteInfo.displayName
-        }
-
-        if (!favoriteInfo.canTimesheet) {
-            setIsFavoriteValid(false)
-            setIsLoading(false)
-            setErrorMsg(`This ${type} cannot be used for timesheets.`)
-            return
-        }
-
-        addFavorite({ name: favoriteName, type, id })
-        setIsLoading(false)
-        setIsOpen(false)
-    }
-
-    const fetchFavoriteName = async () => {
-        if (id === 0) {
-            return
-        }
-        const favoriteInfo = await odooApi.getFavoriteInfo(id, type)
-        if (!favoriteInfo) {
-            setIsFavoriteValid(false)
-            setIsLoading(false)
-            setName("")
-            setErrorMsg(`There is no ${type} with ID ${id}.`)
-            return
-        }
-        setName(favoriteInfo.displayName)
-        if (!favoriteInfo.canTimesheet) {
-            setIsFavoriteValid(false)
-            setIsLoading(false)
-            setErrorMsg(`This ${type} cannot be used for timesheets.`)
-            return
-        }
-        setIsFavoriteValid(true)
     }
 
     const handleClose = () => {
         setIsOpen(false)
-        setIsLoading(false)
-        setIsFavoriteValid(false)
-        setName("")
         setId(0)
         setType("task")
-        setErrorMsg("")
     }
 
     const handleIDChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        // remove leading zeros
         setId(parseInt(e.target.value.replace(/^0+/, '')))
-        setErrorMsg("")
     }
-
-    useEffect(() => {
-        if (id !== 0) {
-            fetchFavoriteName()
-        }
-    }, [id, type])
 
     const handleTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setType(e.target.value as "task" | "project")
-        setErrorMsg("")
     }
 
     return (
