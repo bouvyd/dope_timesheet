@@ -40,6 +40,12 @@ export interface Favorite {
     id: number
 }
 
+export interface FavoriteInfo {
+    id: number
+    displayName: string
+    canTimesheet: boolean
+}
+
 export type Domain = (ThisType<string>[] | string | number | boolean)[] 
 
 export interface Timer {

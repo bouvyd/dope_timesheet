@@ -1,4 +1,4 @@
-import { Domain, Task, User, Timesheet, M2OTuple, Timer, OdooError, OdooResponse } from '../global/types'
+import { Domain, Task, User, Timesheet, M2OTuple, Timer, OdooError, OdooResponse, FavoriteInfo } from '../global/types'
 import { camelCasify } from '../utils/apiUtils';
 import readSpecs from './readSpecs.json'
 
@@ -212,7 +212,8 @@ class OdooAPI {
         return [];
     }
 
-    public async getFavoriteInfo(id: number, type: 'task' | 'project'): Promise<M2OTuple | null> {
+    public async getFavoriteInfo(id: number, type: 'task' | 'project'): Promise<FavoriteInfo | null> {
+        const spec = type === 'task' ? readSpecs.taskFavorite : readSpecs.projectFavorite;
         const res = await fetch(`${OdooAPI.baseUrl}/web/dataset/call_kw`, {
             method: 'POST',
             headers: {
@@ -224,9 +225,11 @@ class OdooAPI {
                 method: 'call_kw',
                 params: {
                     model: type === 'task' ? 'project.task' : 'project.project',
-                    method: 'read',
-                    args: [[id], ["id", "display_name"]],
-                    kwargs: {}
+                    method: 'web_read',
+                    args: [[id]],
+                    kwargs: {
+                        specification: spec,
+                    }
                 }
             })
         })
@@ -234,7 +237,21 @@ class OdooAPI {
         if (jsonResponse.result.length === 0) {
             return null;
         }
-        return camelCasify(jsonResponse.result[0]) as unknown as M2OTuple;
+        if (type === 'task') {
+            const taskInfo = jsonResponse.result[0]
+            return {
+                id: taskInfo.id,
+                displayName: taskInfo.display_name,
+                canTimesheet: taskInfo.analytic_account_active
+            } as FavoriteInfo
+        } else {
+            const projectInfo = jsonResponse.result[0]
+            return {
+                id: projectInfo.id,
+                displayName: projectInfo.display_name,
+                canTimesheet: projectInfo.analytic_account_id !== null && projectInfo.analytic_account_id.active
+            } as FavoriteInfo
+        }
     }
 }
 

@@ -61,5 +61,21 @@
             }
         },
         "timesheet_invoice_type": {}
+    },
+    "taskFavorite": {
+        "id": {},
+        "display_name": {},
+        "can_timesheet": {}
+    },
+    "projectFavorite": {
+        "id": {},
+        "display_name": {},
+        "analytic_account_id": {
+            "fields": {
+                "id": {},
+                "display_name": {},
+                "active": {}
+            }
+        }
     }
 }

@@ -10,6 +10,7 @@ const AddFavorite = () => {
 
     const [isOpen, setIsOpen] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
+    const [isFavoriteValid, setIsFavoriteValid] = useState(false)
     const [name, setName] = useState("")
     const [type, setType] = useState<"task" | "project">("task")
     const [id, setId] = useState<number>(0)
@@ -27,15 +28,23 @@ const AddFavorite = () => {
 
         const favoriteInfo = await odooApi.getFavoriteInfo(id, type)
         if (!favoriteInfo) {
-            alert("Favorite not found")
+            setIsFavoriteValid(false)
             setIsLoading(false)
             setErrorMsg(`There is no ${type} with ID ${id}.`)
             return
         }
+
         setErrorMsg("")
         let favoriteName = name
         if (favoriteName === "") {
             favoriteName = favoriteInfo.displayName
+        }
+
+        if (!favoriteInfo.canTimesheet) {
+            setIsFavoriteValid(false)
+            setIsLoading(false)
+            setErrorMsg(`This ${type} cannot be used for timesheets.`)
+            return
         }
 
         addFavorite({ name: favoriteName, type, id })
@@ -49,16 +58,30 @@ const AddFavorite = () => {
         }
         const favoriteInfo = await odooApi.getFavoriteInfo(id, type)
         if (!favoriteInfo) {
+            setIsFavoriteValid(false)
             setIsLoading(false)
             setName("")
             setErrorMsg(`There is no ${type} with ID ${id}.`)
             return
         }
         setName(favoriteInfo.displayName)
+        if (!favoriteInfo.canTimesheet) {
+            setIsFavoriteValid(false)
+            setIsLoading(false)
+            setErrorMsg(`This ${type} cannot be used for timesheets.`)
+            return
+        }
+        setIsFavoriteValid(true)
     }
 
     const handleClose = () => {
         setIsOpen(false)
+        setIsLoading(false)
+        setIsFavoriteValid(false)
+        setName("")
+        setId(0)
+        setType("task")
+        setErrorMsg("")
     }
 
     const handleIDChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -142,7 +165,7 @@ const AddFavorite = () => {
                                             </motion.div>
                                         )}
                                     </AnimatePresence>
-                                    <button type="submit" className="bg-purple text-white rounded p-2" disabled={isLoading}>{isLoading && <FontAwesomeIcon icon={faSpinner} spin className="mr-2" />}Add</button>
+                                    <button type="submit" className={`bg-green text-white rounded p-2 ${isLoading || !isFavoriteValid ? "opacity-50" : ""}`} disabled={isLoading || !isFavoriteValid}>{isLoading && <FontAwesomeIcon icon={faSpinner} spin className="mr-2" />}Add</button>
                                 </div>
                             </form>
                         </motion.div>
