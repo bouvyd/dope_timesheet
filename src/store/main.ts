@@ -18,6 +18,7 @@ interface MainState {
     fetchTasks: () => Promise<void>
     startTimer: (resourceId: number, resourceType: 'task' | 'project', resourceName: string, duration: number) => void
     stopTimer: (resourceId: number, resourceType: 'task' | 'project') => void
+    addTimer: (timer: Timer) => void
     deleteTimer: (resourceId: number, resourceType: 'task' | 'project') => void
     submitTimers: () => Promise<void>
     setTimerDescription: (resourceId: number, resourceType: 'task' | 'project', description: string) => void
@@ -173,6 +174,19 @@ export const useMainStore = create<MainState>()(
             return {
                 currentTimer: null,
                 timers: newTimers
+            }
+        }),
+        addTimer: (timer) => set((state) => {
+            // check for timer with same resourceId and resourceType
+            const dupeTimer = state.timers.find((t) => t.resourceId === timer.resourceId && t.resourceType === timer.resourceType)
+            if (dupeTimer) {
+                const newDuration = dupeTimer.previousDuration + timer.previousDuration
+                return {
+                    timers: state.timers.map((t) => t.resourceId === timer.resourceId && t.resourceType === timer.resourceType ? { ...t, previousDuration: newDuration } : t)
+                }
+            }
+            return {
+                timers: [...state.timers, timer]
             }
         }),
         deleteTimer: (resourceId, resourceType) => set((state) => {

@@ -13,7 +13,7 @@ import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner, faCheck, faCog } from "@fortawesome/free-solid-svg-icons";
 import AddFavorite from "../components/addFavorite";
-
+import QuickTimerEntry from "../components/quickTimerEntry";
 
 export const Timers = () => {
     const { timers, fetchTasks, favorites, submitTimers } = useMainStore()
@@ -73,6 +73,14 @@ export const Timers = () => {
             exit={{ opacity: 0 }}
             key="page-timers"
         >
+            <div className="flex flex-row justify-between items-start">
+                <span className="text-2xl pt-2 leading-1 font-semibold highlight-marker active before:bg-green-200">Timers</span>
+                <div className="flex flex-col items-end mt-3">
+                    <QuickTimerEntry />
+                    <span className="text-2xl leading-1 font-semibold">{formatDuration(totalTime().total)}</span>
+                    <span className="leading-1 font-semibold text-gray-500" title="With all timers rouded">({formatDuration(totalTime().roundedTotal)})</span>
+                </div>
+            </div>
             <AnimatePresence>
                 {timers.length > 0 && (
                     <motion.div
@@ -82,11 +90,7 @@ export const Timers = () => {
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
                     >
-                        <span className="text-2xl pt-2 leading-1 font-semibold highlight-marker active before:bg-green-200">Current Timers</span>
-                        <div className="flex flex-col items-end">
-                            <span className="text-2xl pt-2 leading-1 font-semibold">{formatDuration(totalTime().total)}</span>
-                            <span className="leading-1 font-semibold text-gray-500" title="With all timers rouded">({formatDuration(totalTime().roundedTotal)})</span>
-                        </div>
+
                     </motion.div>
                 )}
                 {timers.length === 0 && !hasSubmitted && (

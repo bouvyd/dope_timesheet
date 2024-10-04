@@ -19,7 +19,7 @@ export const FavoriteCard: React.FC<FavoriteProps> = ({ favorite, editionMode = 
         if (e.target.value.length > 0) {
             setFavoriteName(favorite, e.target.value)
         } else {
-            const favInfo = await odooApi.getFavoriteInfo(favorite.id, favorite.type)
+            const favInfo = await odooApi.getResourceInfo(favorite.id, favorite.type)
             if (favInfo) {
                 setFavoriteName(favorite, favInfo.displayName)
             } else {

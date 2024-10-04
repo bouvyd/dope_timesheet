@@ -4,33 +4,33 @@ import odooApi from '../api/odoo';
 
 const useRemoteResource = (id: number, type: 'task' | 'project') => {
   const [isLoading, setIsLoading] = useState(false);
-  const [isFavoriteValid, setIsFavoriteValid] = useState(false);
+  const [isResourceValid, setIsResourceValid] = useState(false);
   const [name, setName] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
-    const fetchFavoriteInfo = async () => {
+    const fetchResourceInfo = async () => {
       if (id === 0) {
-        setIsFavoriteValid(false);
+        setIsResourceValid(false);
         setName('');
         setErrorMsg('');
         return;
       }
 
       setIsLoading(true);
-      const favoriteInfo = await odooApi.getFavoriteInfo(id, type);
+      const resourceInfo = await odooApi.getResourceInfo(id, type);
       
-      if (!favoriteInfo) {
-        setIsFavoriteValid(false);
+      if (!resourceInfo) {
+        setIsResourceValid(false);
         setName('');
         setErrorMsg(`There is no ${type} with ID ${id}.`);
       } else {
-        setName(favoriteInfo.displayName);
-        if (!favoriteInfo.canTimesheet) {
-          setIsFavoriteValid(false);
+        setName(resourceInfo.displayName);
+        if (!resourceInfo.canTimesheet) {
+          setIsResourceValid(false);
           setErrorMsg(`This ${type} cannot be used for timesheets.`);
         } else {
-          setIsFavoriteValid(true);
+          setIsResourceValid(true);
           setErrorMsg('');
         }
       }
@@ -38,10 +38,10 @@ const useRemoteResource = (id: number, type: 'task' | 'project') => {
       setIsLoading(false);
     };
 
-    fetchFavoriteInfo();
+    fetchResourceInfo();
   }, [id, type]);
 
-  return { isLoading, isFavoriteValid, name, errorMsg, setName };
+  return { isLoading, isResourceValid, name, errorMsg, setName };
 };
 
 export default useRemoteResource;

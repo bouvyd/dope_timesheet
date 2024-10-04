@@ -1,4 +1,4 @@
-import { Domain, Task, User, Timesheet, M2OTuple, Timer, OdooError, OdooResponse, FavoriteInfo } from '../global/types'
+import { Domain, Task, User, Timesheet, M2OTuple, Timer, OdooError, OdooResponse, ResourceInfo } from '../global/types'
 import { camelCasify } from '../utils/apiUtils';
 import readSpecs from './readSpecs.json'
 
@@ -212,7 +212,7 @@ class OdooAPI {
         return [];
     }
 
-    public async getFavoriteInfo(id: number, type: 'task' | 'project'): Promise<FavoriteInfo | null> {
+    public async getResourceInfo(id: number, type: 'task' | 'project'): Promise<ResourceInfo | null> {
         const spec = type === 'task' ? readSpecs.taskFavorite : readSpecs.projectFavorite;
         const res = await fetch(`${OdooAPI.baseUrl}/web/dataset/call_kw`, {
             method: 'POST',
@@ -242,15 +242,15 @@ class OdooAPI {
             return {
                 id: taskInfo.id,
                 displayName: taskInfo.display_name,
-                canTimesheet: taskInfo.analytic_account_active
-            } as FavoriteInfo
+                canTimesheet: taskInfo.allow_timesheets
+            } as ResourceInfo
         } else {
             const projectInfo = jsonResponse.result[0]
             return {
                 id: projectInfo.id,
                 displayName: projectInfo.display_name,
                 canTimesheet: projectInfo.analytic_account_id !== null && projectInfo.analytic_account_id.active
-            } as FavoriteInfo
+            } as ResourceInfo
         }
     }
 }

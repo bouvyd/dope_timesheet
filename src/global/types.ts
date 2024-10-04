@@ -40,7 +40,7 @@ export interface Favorite {
     id: number
 }
 
-export interface FavoriteInfo {
+export interface ResourceInfo {
     id: number
     displayName: string
     canTimesheet: boolean
