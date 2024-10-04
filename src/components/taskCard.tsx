@@ -63,7 +63,7 @@ const TaskCard = ({ task }: { task: Task }) => {
     return (
         <div
             onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}
-            className="bg-white shadow-md flex flex-col rounded cursor-pointer hover:shadow-lg transition-shadow"
+            className="bg-white shadow flex flex-col rounded cursor-pointer hover:shadow-lg transition-shadow"
         >
             <div className="flex flex-row gap-1 justify-between">
                 <div className="flex flex-col truncate flex-grow p-2" onClick={toggleModal}>

@@ -53,7 +53,7 @@ const DurationInput: React.FC<DurationInputProps> = ({ timer }) => {
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             onClick={preventClickPropagation}
-            className="w-full"
+            className="w-full text-center"
         >
             {showInput ? (
                 <input
@@ -64,7 +64,7 @@ const DurationInput: React.FC<DurationInputProps> = ({ timer }) => {
                     onChange={handleChange}
                     onFocus={handleFocus}
                     onBlur={handleBlur}
-                    className="w-full text-center bg-gray-100 rounded focus:outline-none"
+                    className="w-full text-center bg-gray-100 rounded focus:outline-none text-black"
                 />
             ) : (
                 formatDuration(currentDuration)

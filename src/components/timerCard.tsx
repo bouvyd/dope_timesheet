@@ -68,7 +68,7 @@ export const TimerCard: React.FC<TimerCardProps> = ({ timer, isCurrentTimer, lay
                     <button className="bg-green-100 hover:bg-green-200 px-2 cursor-pointer flex-grow" title="Add or round up to 15 minutes" onClick={() => addDuration(timer.resourceId, timer.resourceType, 15)}>+15'</button>
                     <button className="bg-green-100 hover:bg-green-200 px-2 cursor-pointer flex-grow" title="Add or round up to 1 hour" onClick={() => addDuration(timer.resourceId, timer.resourceType, 60)}>+1h</button>
                 </div>
-                <div onClick={handleTimerClick} onMouseEnter={() => setIsButtonHovered(true)} onMouseLeave={() => setIsButtonHovered(false)} className={`${isCurrentTimer ? "bg-green-200 hover:bg-yellow-100" : "bg-blue-100 hover:bg-green-200"} rounded-r font-bold p-2 aspect-square w-1/5 flex-shrink-0 flex flex-col items-center justify-center cursor-pointer`} >
+                <div onClick={handleTimerClick} onMouseEnter={() => setIsButtonHovered(true)} onMouseLeave={() => setIsButtonHovered(false)} className={`${isCurrentTimer ? "bg-green text-black hover:bg-yellow-100 hover:text-black" : "bg-blue-100 hover:bg-green hover:text-white"} rounded-r font-bold p-2 aspect-square w-1/5 flex-shrink-0 flex flex-col gap-1 items-center justify-center cursor-pointer`} >
                     {
                         isCurrentTimer ?
                             isButtonHovered ? <FontAwesomeIcon icon={faStop} /> : 

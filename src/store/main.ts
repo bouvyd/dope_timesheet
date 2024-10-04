@@ -264,7 +264,18 @@ export const useMainStore = create<MainState>()(
                 return []
             }
         },
-        addFavorite: (favorite) => set((state) => ({ favorites: [...state.favorites, favorite] })),
+        addFavorite: (favorite) => set((state) => {
+            // no dupe check
+            const isDupe = state.favorites.some((f) => f.id === favorite.id && f.type === favorite.type)
+            if (isDupe) {
+                return {
+                    favorites: state.favorites
+                }
+            }
+            return {
+                favorites: [...state.favorites, favorite]
+            }
+        }),
         removeFavorite: (favorite) => set((state) => ({ favorites: state.favorites.filter((f) => f.id !== favorite.id || f.type !== favorite.type) })),
         setFavoriteName: (favorite, name) => set((state) => ({ favorites: state.favorites.map((f) => f.id === favorite.id && f.type === favorite.type ? { ...f, name } : f) })),
     })

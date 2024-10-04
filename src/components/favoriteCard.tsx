@@ -57,7 +57,7 @@ export const FavoriteCard: React.FC<FavoriteProps> = ({ favorite, editionMode = 
                         animate={{ opacity: 1, width: "20%" }}
                         exit={{ opacity: 0, width: 0 }}
                     >
-                        <button className="bg-green-300 aspect-square p-2 w-full h-full" onClick={() => startTimer(favorite.id, favorite.type, favorite.name, 15)}>+15'</button>
+                        <button className="bg-green-300 hover:bg-green-400 aspect-square p-2 w-full h-full" onClick={() => startTimer(favorite.id, favorite.type, favorite.name, 15)}>+15'</button>
                     </motion.div>
                 )}
                 {!editionMode && (
@@ -68,7 +68,7 @@ export const FavoriteCard: React.FC<FavoriteProps> = ({ favorite, editionMode = 
                         animate={{ opacity: 1, width: "20%" }}
                         exit={{ opacity: 0, width: 0 }}
                     >
-                        <button className="bg-green-500 rounded-r aspect-square text-white p-2 w-full h-full" onClick={() => startTimer(favorite.id, favorite.type, favorite.name, 0)}><FontAwesomeIcon icon={faPlay} /></button>
+                        <button className="bg-green-500 hover:bg-green-600 rounded-r aspect-square text-white p-2 w-full h-full" onClick={() => startTimer(favorite.id, favorite.type, favorite.name, 0)}><FontAwesomeIcon icon={faPlay} /></button>
                     </motion.div>
                 )}
                 {editionMode && (
@@ -79,7 +79,7 @@ export const FavoriteCard: React.FC<FavoriteProps> = ({ favorite, editionMode = 
                         animate={{ opacity: 1, width: "20%" }}
                         exit={{ opacity: 0, width: 0 }}
                     >
-                        <button className="bg-red-500 rounded-r aspect-square text-white p-2 w-full h-full" onClick={() => removeFavorite(favorite)}>
+                        <button className="bg-red-500 hover:bg-red-600 rounded-r aspect-square text-white p-2 w-full h-full" onClick={() => removeFavorite(favorite)}>
                             <FontAwesomeIcon icon={faTrash} />
                         </button>
                     </motion.div>

@@ -3,7 +3,7 @@ import { useMainStore } from "../store/main";
 import { AnimatePresence, motion } from "framer-motion";
 import odooApi from "../api/odoo";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSpinner, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faSpinner, faPlus, faX } from "@fortawesome/free-solid-svg-icons";
 
 const AddFavorite = () => {
     const { addFavorite } = useMainStore()
@@ -135,7 +135,12 @@ const AddFavorite = () => {
                             exit={{ opacity: 0, y: -100 }}
                             className="bg-white shadow flex flex-col rounded p-2 w-4/5 absolute top-[5rem] left-[10%] cursor-default"
                         >
-                            <h2 className="text-lg font-semibold mb-4">Add Favorite</h2>
+                            <div className="flex flex-row justify-between items-center mb-4">
+                                <h2 className="text-lg font-semibold">Add Favorite</h2>
+                                <button onClick={handleClose} className="text-gray-400">
+                                    <FontAwesomeIcon icon={faX} />
+                                </button>
+                            </div>
                             <form onSubmit={handleSubmit}>
                                 <div className="flex flex-col gap-2">
                                     <div className="flex flex-row gap-2">
