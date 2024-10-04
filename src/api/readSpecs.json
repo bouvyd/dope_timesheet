@@ -65,7 +65,7 @@
     "taskFavorite": {
         "id": {},
         "display_name": {},
-        "can_timesheet": {}
+        "allow_timesheets": {}
     },
     "projectFavorite": {
         "id": {},

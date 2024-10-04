@@ -32,7 +32,7 @@ class OdooAPI {
     }
 
     static get baseDomain(): Domain {
-        return [['date_last_stage_update', '!=', false], ['display_in_project', '=', true], ['is_closed', '=', false]];
+        return [['date_last_stage_update', '!=', false], ['display_in_project', '=', true], ['is_closed', '=', false], ['allow_timesheets', '=', true]];
     }
 
     static get baseUrl(): string {
